@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/09/22 22:47:12
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/09/22 23:44:51
 wordle.asm						     Page 1 - 1
 
 
@@ -25,19 +25,10 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 			      C .LIST
 			      C 
 
- = 00000020			FIELDLEN=32
- = 00000010			DISPX=16
-
-				optionMenu MACRO
-
-				ENDM
-
-				displayChoices MACRO
-					
-				ENDM
-
  00000000			.data
 				;list DWORD "hello", "start", "catch", "tacos",0
+
+				; Messages that are displayed in the console once the program begins
  00000000 57 65 6C 63 6F	intro BYTE "Welcome to WORDLE!",0
 	   6D 65 20 74 6F
 	   20 57 4F 52 44
@@ -84,74 +75,91 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 	   4C 75 63 6B 21
 	   00
 
- 000000D3  00000050 [		user_input BYTE 80 DUP(?)
+ 000000D3  00000005 [		user_input BYTE 5 DUP(?)		; Limit on the number of characters that
 	    00
 	   ]
- 00000123 05			max BYTE 5
-				optionMenu 
+												; can be read from the user
 
  00000000			.code
  00000000			main PROC
-				 ; Write out the introductory message when the program is run.
- 00000000  B2 19		 mov dl,25
- 00000002  B6 00		 mov dh,0
- 00000004  E8 00000000 E	 call GotoXY
- 00000009  BA 00000000 R	 mov edx, OFFSET intro
- 0000000E  E8 00000000 E	 call WriteString
- 00000013  E8 00000000 E	 call Crlf
- 00000018  E8 00000000 E	 call Crlf
- 0000001D  BA 00000013 R	 mov edx, OFFSET ruleIntro
- 00000022  E8 00000000 E	 call WriteString
- 00000027  E8 00000000 E	 call Crlf
- 0000002C  E8 00000000 E	 call Crlf
- 00000031  BA 00000035 R	 mov edx, OFFSET rule1
- 00000036  E8 00000000 E	 call WriteString
- 0000003B  E8 00000000 E	 call Crlf
- 00000040  BA 00000060 R	 mov edx, OFFSET rule2
- 00000045  E8 00000000 E	 call WriteString
- 0000004A  E8 00000000 E	 call Crlf
- 0000004F  BA 00000095 R	 mov edx, OFFSET rule3
- 00000054  E8 00000000 E	 call WriteString
- 00000059  E8 00000000 E	 call Crlf
- 0000005E  E8 00000000 E	 call Crlf
- 00000063  B2 1D		 mov dl,29
- 00000065  B6 08		 mov dh,8
- 00000067  E8 00000000 E	 call GoToXY
- 0000006C  BA 000000C8 R	 mov edx, OFFSET luck
- 00000071  E8 00000000 E	 call WriteString
- 00000076  E8 00000000 E	 call Crlf
- 0000007B  E8 00000000 E	 call Crlf
- 00000080  E8 00000000 E	 call WaitMsg
-				 ; After the user has moved on clear the screen.
- 00000085  E8 00000000 E	 call ClrScr
+ 00000000  E8 00000013		 CALL rules
 				; call SetTextColor ( will use to show incorrect letters, correct placement, and valid letter but incorrect placement. )
 				; mov eax, green
 				; call SetTextColor
 				; revert color back to white, do this for each character read in from the user.
- 0000008A  BE 00000000		 mov esi,0
- 0000008F			 L1:
- 0000008F  BA 000000D3 R		mov edx, OFFSET user_input
- 00000094  B9 0000004F			mov ecx, (LENGTHOF user_input - 1)
- 00000099  E8 00000000 E		call ReadString
- 0000009E  BA 000000D3 R		mov edx, OFFSET user_input
- 000000A3  E8 00000000 E		call WriteString
- 000000A8  E8 00000000 E		call Crlf
- 000000AD  46				inc esi
- 000000AE  E2 DF			loop L1
- 000000B0			main ENDP
+				 
+				;CALL processInput
+				;INVOKE ExitProcess,0
+ 00000005  B9 00000005		 mov ecx,5
+ 0000000A			 L1:
+ 0000000A  E8 00000093			CALL processInput
+ 0000000F  E2 F9			loop L1
+				INVOKE ExitProcess,0
+ 00000011  6A 00	   *	    push   +000000000h
+ 00000013  E8 00000000 E   *	    call   ExitProcess
+ 00000018			main ENDP
+
+				;=====================================================================
+				;								rules PROC
+				; Function outputs the rules of the game to the console before waiting
+				; for user input. Allows the user to understand how to play the game.
+				;=====================================================================
+
+ 00000018			rules PROC
+				 ; Write out the introductory message when the program is run.
+ 00000018  B2 19		 mov dl,25					; Change the position of the text written to the console
+ 0000001A  B6 00		 mov dh,0
+ 0000001C  E8 00000000 E	 call GotoXY		
+ 00000021  BA 00000000 R	 mov edx, OFFSET intro
+ 00000026  E8 00000000 E	 call WriteString			; Write the intro message to the console
+ 0000002B  E8 00000000 E	 call Crlf
+ 00000030  E8 00000000 E	 call Crlf
+ 00000035  BA 00000013 R	 mov edx, OFFSET ruleIntro	; Write the rule intro to the console
+ 0000003A  E8 00000000 E	 call WriteString
+ 0000003F  E8 00000000 E	 call Crlf
+ 00000044  E8 00000000 E	 call Crlf
+ 00000049  BA 00000035 R	 mov edx, OFFSET rule1		; Write the first rule to the console
+ 0000004E  E8 00000000 E	 call WriteString
+ 00000053  E8 00000000 E	 call Crlf
+ 00000058  BA 00000060 R	 mov edx, OFFSET rule2		; Write the second rule to the console
+ 0000005D  E8 00000000 E	 call WriteString
+ 00000062  E8 00000000 E	 call Crlf
+ 00000067  BA 00000095 R	 mov edx, OFFSET rule3		; Write the last rule to the console
+ 0000006C  E8 00000000 E	 call WriteString
+ 00000071  E8 00000000 E	 call Crlf
+ 00000076  E8 00000000 E	 call Crlf
+ 0000007B  B2 1D		 mov dl,29
+ 0000007D  B6 08		 mov dh,8
+ 0000007F  E8 00000000 E	 call GoToXY
+ 00000084  BA 000000C8 R	 mov edx, OFFSET luck		; Output final message before program begins
+ 00000089  E8 00000000 E	 call WriteString
+ 0000008E  E8 00000000 E	 call Crlf
+ 00000093  E8 00000000 E	 call Crlf
+ 00000098  E8 00000000 E	 call WaitMsg
+				 ; After the user has moved on clear the screen.
+ 0000009D  E8 00000000 E	 call ClrScr
+ 000000A2			rules ENDP
+
+				;======================================================
+				;					processInput PROC
+				; Procedure takes input from the user and compares it to
+				; a selected word from the list provided to check for
+				; the correctness of the users inputted value.
+				;======================================================
+ 000000A2			processInput PROC
+ 000000A2  BA 000000D3 R	 mov edx, OFFSET user_input
+ 000000A7  B9 00000006		 mov ecx, (LENGTHOF user_input) + 1
+ 000000AC  E8 00000000 E	 call ReadString
+ 000000B1  BA 000000D3 R	 mov edx, OFFSET user_input
+ 000000B6  E8 00000000 E	 call WriteString
+ 000000BB  E8 00000000 E	 call Crlf
+ 000000C0			processInput ENDP
+
 				END main
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/09/22 22:47:12
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/09/22 23:44:51
 wordle.asm						     Symbols 2 - 1
 
 
-
-
-Macros:
-
-                N a m e                 Type
-
-displayChoices . . . . . . . . .	Proc
-optionMenu . . . . . . . . . . .	Proc
 
 
 Structures and Unions:
@@ -242,8 +250,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000124 DWord	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000B0 DWord	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000000D8 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000C0 DWord	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -350,9 +358,11 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000000B0 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 0000008F _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000018 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000000A _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+processInput . . . . . . . . . .	P Near	 000000A2 _TEXT	Length= 0000001E Public STDCALL
+rules  . . . . . . . . . . . . .	P Near	 00000018 _TEXT	Length= 0000008A Public STDCALL
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
@@ -376,7 +386,6 @@ CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h
 CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
 CTRL_MASK  . . . . . . . . . . .	Number	 0000000Ch   
 CreateFile . . . . . . . . . . .	Text   	 CreateFileA
-DISPX  . . . . . . . . . . . . .	Number	 00000010h   
 DO_NOT_SHARE . . . . . . . . . .	Number	 00000000h   
 ENABLE_ECHO_INPUT  . . . . . . .	Number	 00000004h   
 ENABLE_LINE_INPUT  . . . . . . .	Number	 00000002h   
@@ -387,7 +396,6 @@ ENABLE_WINDOW_INPUT  . . . . . .	Number	 00000008h
 ENABLE_WRAP_AT_EOL_OUTPUT  . . .	Number	 00000002h   
 ENHANCED_KEY . . . . . . . . . .	Number	 00000100h   
 FALSE  . . . . . . . . . . . . .	Number	 00000000h   
-FIELDLEN . . . . . . . . . . . .	Number	 00000020h   
 FILE_APPEND_DATA . . . . . . . .	Number	 00000004h   
 FILE_ATTRIBUTE_ARCHIVE . . . . .	Number	 00000020h   
 FILE_ATTRIBUTE_COMPRESSED  . . .	Number	 00000800h   
@@ -588,7 +596,6 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 luck . . . . . . . . . . . . . .	Byte	 000000C8 _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-max  . . . . . . . . . . . . . .	Byte	 00000123 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 rule1  . . . . . . . . . . . . .	Byte	 00000035 _DATA	
 rule2  . . . . . . . . . . . . .	Byte	 00000060 _DATA	
