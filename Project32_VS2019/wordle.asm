@@ -12,36 +12,48 @@ rule1 BYTE "1. The inputted word must be 5 characters.",0
 rule2 BYTE "2. All words can be found in the English dictionary.",0
 rule3 BYTE "3. You only have 6 chances to figure out the word.",0
 luck BYTE "Good Luck!",0
+input_string BYTE "Input: ",0
+attempt_string BYTE "Attempt: ",0
 
 user_input BYTE 5 DUP(?)		; Limit on the number of characters that
 								; can be read from the user
 
 .code
 main PROC
- CALL rules
+ CALL OutputLoad
 ; call SetTextColor ( will use to show incorrect letters, correct placement, and valid letter but incorrect placement. )
 ; mov eax, green
 ; call SetTextColor
 ; revert color back to white, do this for each character read in from the user.
  
-;CALL processInput
-;INVOKE ExitProcess,0
-; This don't work, no clue why, //TODO
- mov ecx,6
+ mov edi,6
  L1:
-	CALL processInput
-	loop L1
+  CALL ProcessInput		; Want to implement a check to see if the user inputted a value that is actually of length 5
+							; If greater than 5 output to the console and and notify the user and allow for reinput
+
+							; implement a state machine to do character comparison, output each character in a color
+							; to signifiy the input has correct placement, character is in word, or character is not in
+							; the word
+
+							; would like to have a display at the bottom of the screen of all valid characters, after each
+							; input the list of characters would be updated to show whether that was tried and not in the word 
+  
+  push edi
+  pop edi
+  dec edi
+  jnz L1
+
 INVOKE ExitProcess,0
 main ENDP
 
 ;======================================================
-;							rules PROC
+;					OutoutLoad PROC
 ; Function outputs the rules of the game to the console
 ; before waiting for user input. Allows the user to 
 ; understand how to play the game.
 ;======================================================
 
-rules PROC
+OutputLoad PROC
  ; Write out the introductory message when the program is run.
  mov dl,25					; Change the position of the text written to the console
  mov dh,0
@@ -74,21 +86,28 @@ rules PROC
  call WaitMsg
  ; After the user has moved on clear the screen.
  call ClrScr
-rules ENDP
+ ret
+OutputLoad ENDP
 
 ;======================================================
-;					processInput PROC
+;					ProcessInput PROC
 ; Procedure takes input from the user and compares it to
 ; a selected word from the list provided to check for
 ; the correctness of the users inputted value.
 ;======================================================
-processInput PROC
+ProcessInput PROC
+ mov edx, OFFSET input_string
+ call WriteString
  mov edx, OFFSET user_input
  mov ecx, (LENGTHOF user_input) + 1
  call ReadString
+; implement a state machine to do the comparison for all values of the input.
+ mov edx, OFFSET attempt_string
+ call WriteString
  mov edx, OFFSET user_input
  call WriteString
  call Crlf
-processInput ENDP
+ ret
+ProcessInput ENDP
 
 END main
