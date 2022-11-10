@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 10:07:01
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 12:45:33
 wordle.asm						     Page 1 - 1
 
 
@@ -26,7 +26,6 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 			      C 
 
  00000000			.data
-				;list DWORD "hello", "start", "catch", "tacos",0
 
 				; Messages that are displayed in the console once the program begins
  00000000 57 65 6C 63 6F	intro BYTE "Welcome to WORDLE!",0
@@ -74,27 +73,48 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
  000000C8 47 6F 6F 64 20	luck BYTE "Good Luck!",0
 	   4C 75 63 6B 21
 	   00
+				; Messages displayed as the user inputs words into the console
  000000D3 49 6E 70 75 74	input_string BYTE "Input: ",0
 	   3A 20 00
  000000DB 41 74 74 65 6D	attempt_string BYTE "Attempt: ",0
 	   70 74 3A 20 00
 
+				; Variable that is used to store the user input from the ReadString function
  000000E5  00000005 [		user_input BYTE 5 DUP(?)		; Limit on the number of characters that
 	    00
 	   ]
-												; can be read from the user
+												; can be read from the user by setting size
+												; to 5
+
+				; String given by the user when the program begins, this is the string that
+				; will be used for comparisons from the user input
+ 000000EA  00000005 [		true_string BYTE 5 DUP(?)
+	    00
+	   ]
+ 000000EF 49 6E 70 75 74	prompt_message BYTE "Input expected String: ",0
+	   20 65 78 70 65
+	   63 74 65 64 20
+	   53 74 72 69 6E
+	   67 3A 20 00
+
+ 00000107 01			index BYTE 1
 
  00000000			.code
  00000000			main PROC
- 00000000  E8 00000016		 CALL OutputLoad
+ 00000000  E8 00000036		 call OutputLoad
+ 00000005  E8 000000B2		 call CollectString
+ 0000000A  E8 00000000 E	 call WaitMsg
+ 0000000F  E8 00000000 E	 call Crlf
+ 00000014  E8 00000000 E	 call Crlf
 				; call SetTextColor ( will use to show incorrect letters, correct placement, and valid letter but incorrect placement. )
 				; mov eax, green
 				; call SetTextColor
 				; revert color back to white, do this for each character read in from the user.
 				 
- 00000005  BF 00000006		 mov edi,6
- 0000000A			 L1:
- 0000000A  E8 00000097		  CALL ProcessInput		; Want to implement a check to see if the user inputted a value that is actually of length 5
+ 00000019  A0 00000107 R	 mov al, index
+ 0000001E  BF 00000006		 mov edi,6
+ 00000023			 L1:
+ 00000023  E8 000000B3		  call ProcessInput		; Want to implement a check to see if the user inputted a value that is actually of length 5
 											; If greater than 5 output to the console and and notify the user and allow for reinput
 
 											; implement a state machine to do character comparison, output each character in a color
@@ -103,16 +123,17 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 
 											; would like to have a display at the bottom of the screen of all valid characters, after each
 											; input the list of characters would be updated to show whether that was tried and not in the word 
-				  
- 0000000F  57			  push edi
- 00000010  5F			  pop edi
- 00000011  4F			  dec edi
- 00000012  75 F6		  jnz L1
+ 00000028  FE C0		  inc al
+ 0000002A  A2 00000107 R	  mov index, al
+ 0000002F  57			  push edi
+ 00000030  5F			  pop edi
+ 00000031  4F			  dec edi
+ 00000032  75 EF		  jnz L1
 
 				INVOKE ExitProcess,0
- 00000014  6A 00	   *	    push   +000000000h
- 00000016  E8 00000000 E   *	    call   ExitProcess
- 0000001B			main ENDP
+ 00000034  6A 00	   *	    push   +000000000h
+ 00000036  E8 00000000 E   *	    call   ExitProcess
+ 0000003B			main ENDP
 
 				;======================================================
 				;					OutoutLoad PROC
@@ -121,41 +142,57 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 				; understand how to play the game.
 				;======================================================
 
- 0000001B			OutputLoad PROC
+ 0000003B			OutputLoad PROC
 				 ; Write out the introductory message when the program is run.
- 0000001B  B2 19		 mov dl,25					; Change the position of the text written to the console
- 0000001D  B6 00		 mov dh,0
- 0000001F  E8 00000000 E	 call GotoXY		
- 00000024  BA 00000000 R	 mov edx, OFFSET intro
- 00000029  E8 00000000 E	 call WriteString			; Write the intro message to the console
- 0000002E  E8 00000000 E	 call Crlf
- 00000033  E8 00000000 E	 call Crlf
- 00000038  BA 00000013 R	 mov edx, OFFSET ruleIntro	; Write the rule intro to the console
- 0000003D  E8 00000000 E	 call WriteString
- 00000042  E8 00000000 E	 call Crlf
- 00000047  E8 00000000 E	 call Crlf
- 0000004C  BA 00000035 R	 mov edx, OFFSET rule1		; Write the first rule to the console
- 00000051  E8 00000000 E	 call WriteString
- 00000056  E8 00000000 E	 call Crlf
- 0000005B  BA 00000060 R	 mov edx, OFFSET rule2		; Write the second rule to the console
- 00000060  E8 00000000 E	 call WriteString
- 00000065  E8 00000000 E	 call Crlf
- 0000006A  BA 00000095 R	 mov edx, OFFSET rule3		; Write the last rule to the console
- 0000006F  E8 00000000 E	 call WriteString
- 00000074  E8 00000000 E	 call Crlf
- 00000079  E8 00000000 E	 call Crlf
- 0000007E  B2 1D		 mov dl,29
- 00000080  B6 08		 mov dh,8
- 00000082  E8 00000000 E	 call GoToXY
- 00000087  BA 000000C8 R	 mov edx, OFFSET luck		; Output final message before program begins
- 0000008C  E8 00000000 E	 call WriteString
- 00000091  E8 00000000 E	 call Crlf
- 00000096  E8 00000000 E	 call Crlf
- 0000009B  E8 00000000 E	 call WaitMsg
+ 0000003B  B2 19		 mov dl,25					; Change the position of the text written to the console
+ 0000003D  B6 00		 mov dh,0
+ 0000003F  E8 00000000 E	 call GotoXY		
+ 00000044  BA 00000000 R	 mov edx, OFFSET intro
+ 00000049  E8 00000000 E	 call WriteString			; Write the intro message to the console
+ 0000004E  E8 00000000 E	 call Crlf
+ 00000053  E8 00000000 E	 call Crlf
+ 00000058  BA 00000013 R	 mov edx, OFFSET ruleIntro	; Write the rule intro to the console
+ 0000005D  E8 00000000 E	 call WriteString
+ 00000062  E8 00000000 E	 call Crlf
+ 00000067  E8 00000000 E	 call Crlf
+ 0000006C  BA 00000035 R	 mov edx, OFFSET rule1		; Write the first rule to the console
+ 00000071  E8 00000000 E	 call WriteString
+ 00000076  E8 00000000 E	 call Crlf
+ 0000007B  BA 00000060 R	 mov edx, OFFSET rule2		; Write the second rule to the console
+ 00000080  E8 00000000 E	 call WriteString
+ 00000085  E8 00000000 E	 call Crlf
+ 0000008A  BA 00000095 R	 mov edx, OFFSET rule3		; Write the last rule to the console
+ 0000008F  E8 00000000 E	 call WriteString
+ 00000094  E8 00000000 E	 call Crlf
+ 00000099  E8 00000000 E	 call Crlf
+ 0000009E  B2 1D		 mov dl,29
+ 000000A0  B6 08		 mov dh,8
+ 000000A2  E8 00000000 E	 call GoToXY
+ 000000A7  BA 000000C8 R	 mov edx, OFFSET luck		; Output final message before program begins
+ 000000AC  E8 00000000 E	 call WriteString
+ 000000B1  E8 00000000 E	 call Crlf
+ 000000B6  E8 00000000 E	 call Crlf
 				 ; After the user has moved on clear the screen.
- 000000A0  E8 00000000 E	 call ClrScr
- 000000A5  C3			 ret
- 000000A6			OutputLoad ENDP
+ 000000BB  C3			 ret
+ 000000BC			OutputLoad ENDP
+
+
+				;======================================================
+				;				    CollectString PROC
+				; Procedure that takes input for the value of the string
+				; that the comparisons will be paried against.
+				;======================================================
+ 000000BC			CollectString PROC
+ 000000BC  BA 000000EF R	 mov edx, OFFSET prompt_message
+ 000000C1  E8 00000000 E	 call WriteString
+				 ;call DisableEcho ; Need to implement
+ 000000C6  BA 000000EA R	 mov edx, OFFSET true_string
+ 000000CB  B9 00000006		 mov ecx, (LENGTHOF true_string) + 1
+ 000000D0  E8 00000000 E	 call ReadString
+				 ;call EnableEcho : Need to implement
+ 000000D5  E8 00000000 E	 call Crlf
+ 000000DA  C3			 ret
+ 000000DB			CollectString ENDP
 
 				;======================================================
 				;					ProcessInput PROC
@@ -163,23 +200,26 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 				; a selected word from the list provided to check for
 				; the correctness of the users inputted value.
 				;======================================================
- 000000A6			ProcessInput PROC
- 000000A6  BA 000000D3 R	 mov edx, OFFSET input_string
- 000000AB  E8 00000000 E	 call WriteString
- 000000B0  BA 000000E5 R	 mov edx, OFFSET user_input
- 000000B5  B9 00000006		 mov ecx, (LENGTHOF user_input) + 1
- 000000BA  E8 00000000 E	 call ReadString
+ 000000DB			ProcessInput PROC
+ 000000DB  BA 000000D3 R	 mov edx, OFFSET input_string
+ 000000E0  E8 00000000 E	 call WriteString
+ 000000E5  BA 000000E5 R	 mov edx, OFFSET user_input
+ 000000EA  B9 00000006		 mov ecx, (LENGTHOF user_input) + 1
+ 000000EF  E8 00000000 E	 call ReadString
 				; implement a state machine to do the comparison for all values of the input.
- 000000BF  BA 000000DB R	 mov edx, OFFSET attempt_string
- 000000C4  E8 00000000 E	 call WriteString
- 000000C9  BA 000000E5 R	 mov edx, OFFSET user_input
- 000000CE  E8 00000000 E	 call WriteString
- 000000D3  E8 00000000 E	 call Crlf
- 000000D8  C3			 ret
- 000000D9			ProcessInput ENDP
+ 000000F4  BA 000000DB R	 mov edx, OFFSET attempt_string
+ 000000F9  E8 00000000 E	 call WriteString
+				 ;mov index, al
+				 ;mov edx, OFFSET index
+				 ;call WriteInt
+ 000000FE  BA 000000E5 R	 mov edx, OFFSET user_input
+ 00000103  E8 00000000 E	 call WriteString
+ 00000108  E8 00000000 E	 call Crlf
+ 0000010D  C3			 ret
+ 0000010E			ProcessInput ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 10:07:01
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 12:45:33
 wordle.asm						     Symbols 2 - 1
 
 
@@ -273,8 +313,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000000EA DWord	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000D9 DWord	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000108 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000010E DWord	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -284,6 +324,7 @@ Procedures, parameters, and locals:
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CollectString  . . . . . . . . .	P Near	 000000BC _TEXT	Length= 0000001F Public STDCALL
 CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -326,11 +367,11 @@ MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MsgBox . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-OutputLoad . . . . . . . . . . .	P Near	 0000001B _TEXT	Length= 0000008B Public STDCALL
+OutputLoad . . . . . . . . . . .	P Near	 0000003B _TEXT	Length= 00000081 Public STDCALL
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ProcessInput . . . . . . . . . .	P Near	 000000A6 _TEXT	Length= 00000033 Public STDCALL
+ProcessInput . . . . . . . . . .	P Near	 000000DB _TEXT	Length= 00000033 Public STDCALL
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -383,8 +424,8 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000001B Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 0000000A _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000003B Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 00000023 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -611,6 +652,7 @@ cyan . . . . . . . . . . . . . .	Number	 00000003h
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
+index  . . . . . . . . . . . . .	Byte	 00000107 _DATA	
 input_string . . . . . . . . . .	Byte	 000000D3 _DATA	
 intro  . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
@@ -621,11 +663,13 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 luck . . . . . . . . . . . . . .	Byte	 000000C8 _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
+prompt_message . . . . . . . . .	Byte	 000000EF _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 rule1  . . . . . . . . . . . . .	Byte	 00000035 _DATA	
 rule2  . . . . . . . . . . . . .	Byte	 00000060 _DATA	
 rule3  . . . . . . . . . . . . .	Byte	 00000095 _DATA	
 ruleIntro  . . . . . . . . . . .	Byte	 00000013 _DATA	
+true_string  . . . . . . . . . .	Byte	 000000EA _DATA	
 user_input . . . . . . . . . . .	Byte	 000000E5 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
