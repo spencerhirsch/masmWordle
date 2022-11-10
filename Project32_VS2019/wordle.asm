@@ -138,6 +138,37 @@ ProcessInput PROC
  ;mov index, al
  ;mov edx, OFFSET index
  ;call WriteInt
+
+ mov al, [user_input]
+ or al, 20h
+ ; need to make true string lowercase
+ cmp al, [true_string] 
+ je DirectMatch
+ jne DoesExist
+
+ DirectMatch:
+  mov eax, green
+  call SetTextColor
+  call WriteChar
+  mov eax, white
+  call SetTextColor
+ DoesExist:
+  mov eax, red
+  call SetTextColor
+  call WriteChar
+  mov eax, white
+  call SetTextColor
+
+
+ call WriteChar
+ call Crlf
+ mov al, [user_input + 1]
+ call WriteChar
+ call Crlf
+
+
+
+
  mov edx, OFFSET user_input
  call WriteString
  call Crlf

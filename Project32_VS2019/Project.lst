@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 12:45:33
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 15:49:44
 wordle.asm						     Page 1 - 1
 
 
@@ -212,14 +212,45 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 				 ;mov index, al
 				 ;mov edx, OFFSET index
 				 ;call WriteInt
- 000000FE  BA 000000E5 R	 mov edx, OFFSET user_input
- 00000103  E8 00000000 E	 call WriteString
- 00000108  E8 00000000 E	 call Crlf
- 0000010D  C3			 ret
- 0000010E			ProcessInput ENDP
+
+ 000000FE  A0 000000E5 R	 mov al, [user_input]
+ 00000103  0C 20		 or al, 20h
+				 ; need to make true string lowercase
+ 00000105  3A 05 000000EA R	 cmp al, [true_string] 
+ 0000010B  74 02		 je DirectMatch
+ 0000010D  75 19		 jne DoesExist
+
+ 0000010F			 DirectMatch:
+ 0000010F  B8 00000002		  mov eax, green
+ 00000114  E8 00000000 E	  call SetTextColor
+ 00000119  E8 00000000 E	  call WriteChar
+ 0000011E  B8 0000000F		  mov eax, white
+ 00000123  E8 00000000 E	  call SetTextColor
+ 00000128			 DoesExist:
+ 00000128  B8 00000004		  mov eax, red
+ 0000012D  E8 00000000 E	  call SetTextColor
+ 00000132  E8 00000000 E	  call WriteChar
+ 00000137  B8 0000000F		  mov eax, white
+ 0000013C  E8 00000000 E	  call SetTextColor
+
+
+ 00000141  E8 00000000 E	 call WriteChar
+ 00000146  E8 00000000 E	 call Crlf
+ 0000014B  A0 000000E6 R	 mov al, [user_input + 1]
+ 00000150  E8 00000000 E	 call WriteChar
+ 00000155  E8 00000000 E	 call Crlf
+
+
+
+
+ 0000015A  BA 000000E5 R	 mov edx, OFFSET user_input
+ 0000015F  E8 00000000 E	 call WriteString
+ 00000164  E8 00000000 E	 call Crlf
+ 00000169  C3			 ret
+ 0000016A			ProcessInput ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 12:45:33
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 15:49:44
 wordle.asm						     Symbols 2 - 1
 
 
@@ -314,7 +345,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 00000108 DWord	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000010E DWord	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000016A DWord	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -371,7 +402,9 @@ OutputLoad . . . . . . . . . . .	P Near	 0000003B _TEXT	Length= 00000081 Public 
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ProcessInput . . . . . . . . . .	P Near	 000000DB _TEXT	Length= 00000033 Public STDCALL
+ProcessInput . . . . . . . . . .	P Near	 000000DB _TEXT	Length= 0000008F Public STDCALL
+  DirectMatch  . . . . . . . . .	L Near	 0000010F _TEXT	
+  DoesExist  . . . . . . . . . .	L Near	 00000128 _TEXT	
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
