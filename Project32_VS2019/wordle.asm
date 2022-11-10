@@ -10,7 +10,7 @@ intro BYTE "Welcome to WORDLE!",0
 ruleIntro BYTE "The rules of the game are simple:",0
 rule1 BYTE "1. The inputted word must be 5 characters.",0
 rule2 BYTE "2. All words can be found in the English dictionary.",0
-rule3 BYTE "3. You only have 5 chances to figure out the word.",0
+rule3 BYTE "3. You only have 6 chances to figure out the word.",0
 luck BYTE "Good Luck!",0
 
 user_input BYTE 5 DUP(?)		; Limit on the number of characters that
@@ -27,18 +27,19 @@ main PROC
 ;CALL processInput
 ;INVOKE ExitProcess,0
 ; This don't work, no clue why, //TODO
- mov ecx,5
+ mov ecx,6
  L1:
 	CALL processInput
 	loop L1
 INVOKE ExitProcess,0
 main ENDP
 
-;=====================================================================
-;								rules PROC
-; Function outputs the rules of the game to the console before waiting
-; for user input. Allows the user to understand how to play the game.
-;=====================================================================
+;======================================================
+;							rules PROC
+; Function outputs the rules of the game to the console
+; before waiting for user input. Allows the user to 
+; understand how to play the game.
+;======================================================
 
 rules PROC
  ; Write out the introductory message when the program is run.

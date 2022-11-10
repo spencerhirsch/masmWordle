@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/09/22 23:44:51
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 08:43:48
 wordle.asm						     Page 1 - 1
 
 
@@ -90,6 +90,7 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
 				 
 				;CALL processInput
 				;INVOKE ExitProcess,0
+				; This don't work, no clue why, //TODO
  00000005  B9 00000005		 mov ecx,5
  0000000A			 L1:
  0000000A  E8 00000093			CALL processInput
@@ -99,11 +100,12 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
  00000013  E8 00000000 E   *	    call   ExitProcess
  00000018			main ENDP
 
-				;=====================================================================
-				;								rules PROC
-				; Function outputs the rules of the game to the console before waiting
-				; for user input. Allows the user to understand how to play the game.
-				;=====================================================================
+				;======================================================
+				;							rules PROC
+				; Function outputs the rules of the game to the console
+				; before waiting for user input. Allows the user to 
+				; understand how to play the game.
+				;======================================================
 
  00000018			rules PROC
 				 ; Write out the introductory message when the program is run.
@@ -156,7 +158,7 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
  000000C0			processInput ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/09/22 23:44:51
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 08:43:48
 wordle.asm						     Symbols 2 - 1
 
 
