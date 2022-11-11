@@ -140,23 +140,27 @@ ProcessInput PROC
  ;call WriteInt
 
  mov al, [user_input]
- or al, 20h
+ ; or al, 20h
  ; need to make true string lowercase
  cmp al, [true_string] 
  je DirectMatch
  jne DoesExist
 
  DirectMatch:
-  mov eax, green
+  mov eax,(black*16) + green
   call SetTextColor
+  mov al, [user_input]
   call WriteChar
-  mov eax, white
+  mov eax,(black*16) + white
   call SetTextColor
+
+
  DoesExist:
-  mov eax, red
+  mov eax,(black*16) + red
   call SetTextColor
+  mov al, [user_input]
   call WriteChar
-  mov eax, white
+  mov eax,(black*16) + white
   call SetTextColor
 
 
