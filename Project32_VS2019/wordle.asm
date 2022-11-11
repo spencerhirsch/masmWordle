@@ -141,72 +141,98 @@ ProcessInput PROC
   
 
  mov esi,0 
- mov esi, OFFSET true_string
+ mov esi, OFFSET [true_string]
  
- mov ebx, 0
- mov ebx, OFFSET user_input
+ ;mov ebx, 0
+ ;mov ebx, OFFSET user_input
+ mov edi, OFFSET [user_input]
  
- mov ecx, (LENGTHOF true_string) - 1
+ ;mov ecx, (LENGTHOF true_string) - 1
+ mov ecx, LENGTHOF true_string
+ repe cmpsb
+ cmp ecx, 0
+ je Here
+ jne outer
+ Here:
+    mov eax,(black*16) + green
+    call SetTextColor
+    mov edx, OFFSET user_input
+    call WriteString
+    mov eax,(black*16) + white
+    call SetTextColor
+    INVOKE ExitProcess,0
 
- mov edx, [ebx]
+ ;NotEqual:
+ ;  mov edi, OFFSET [user_input]
+ ;  mov esi, OFFSET [true_string]
+ ;  mov ecx, (LENGTHOF true_string)
+   
+ ;  cmpsb
+ ;  je Match
+ ;  jne PotentialMatch2
+ mov edi, OFFSET [user_input]
+ mov esi, OFFSET [true_string]
+ mov dl, 1
  outer:
-    mov edx, [ebx]
-    cmp edx, [esi]
-	jae DirectMatch
-	jne PotentialMatch
+  cld
+  cmpsb
+  dec edi
+  dec esi
+  je DirectMatch
+  jne PotentialMatch
 
-	DirectMatch:
-	 mov eax,(black*16) + green
-     call SetTextColor
-     mov al, [ebx]
-     call WriteChar
-     mov eax,(black*16) + white
-     call SetTextColor
-	 mov al, 0
-	 cmp al, 0
-	 je Escape
+  DirectMatch:
+   mov eax,(black*16) + green
+   call SetTextColor
+   mov al, [edi]
+   call WriteChar
+   mov eax,(black*16) + white
+   call SetTextColor
+   mov al, 0
+   cmp al, 0
+   je Escape
 
-	PotentialMatch:
-     mov dl, 1
-	 inner:
-	  mov al, [ebx]
-      mov bl, [esi]
-	  cmp al, bl
-      je Found
-	  inc esi
-      inc dl
-      cmp dl, 6
-      je DoesNotExist
-      jne inner
+  PotentialMatch:
+   mov al, [edi]
+   mov edi, OFFSET [true_string]
+   mov ecx, LENGTHOF true_string
+   cld
+   repne scasb
+   jnz NotFound
+   dec edi
+   jz Found
 
-	Found:
-     mov eax,(black*16) + yellow
-     call SetTextColor
-     mov al, [ebx]
-     call WriteChar
-     mov eax,(black*16) + white
-     call SetTextColor
-     mov al, 0
-     cmp al,0
-     je Escape
+  Found:
+   mov eax,(black*16) + yellow
+   call SetTextColor
+   ;mov al, [ebx]
+   mov al, [edi]
+   call WriteChar
+   mov eax,(black*16) + white
+   call SetTextColor
+   mov al, 0
+   cmp al,0
+   je Escape
 
-	DoesNotExist:
-     mov eax,(black*16) + red
-     call SetTextColor
-     mov al, [ebx]
-     call WriteChar
-     mov eax,(black*16) + white
-     call SetTextColor
-     mov al, 0
-     cmp al,0
-     je Escape
+   NotFound:
+    mov eax,(black*16) + red
+    call SetTextColor
+    mov al, [edi]
+    call WriteChar
+    mov eax,(black*16) + white
+    call SetTextColor
+    mov al, 0
+    cmp al,0
+    je Escape
 
-	Escape:
-	 inc esi
-	 inc ebx
-     ;inc edx
-     dec cx
-     jne outer
+   Escape:
+    inc esi
+    inc edi
+    ;dec cx
+    inc dl
+    cmp dl, 6
+    jne outer
+
  call Crlf
  ret
 ProcessInput ENDP

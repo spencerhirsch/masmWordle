@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 23:18:40
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/11/22 09:43:59
 wordle.asm						     Page 1 - 1
 
 
@@ -198,96 +198,123 @@ c:\Irvine\SmallWin.inc(11) : warning A4011:multiple .MODEL directives found : .M
  000000F4  BA 000000DB R	 mov edx, OFFSET attempt_string
  000000F9  E8 00000000 E	 call WriteString
 				 
- 000000FE  BE 000000EB R	 mov esi, OFFSET [true_string]
- 00000103  BF 000000E5 R	 mov edi, OFFSET [user_input]
- 00000108  F3/ A6		 repe cmpsb
+				 ; Didn't work, would like to implement.
+				 ;mov esi, OFFSET [true_string]
+				 ;mov edi, OFFSET [user_input]
+				 ;repe cmpsb
 
- 0000010A  74 00		 je Equal
- 0000010C			 Equal:
- 0000010C  B8 00000002		  mov eax, (black*16) + green
- 00000111  E8 00000000 E	  call SetTextColor
- 00000116  BA 000000E5 R	  mov edx, OFFSET user_input
- 0000011B  E8 00000000 E	  call WriteString
- 00000120  B8 0000000F		  mov eax, (black*16) + white
- 00000125  E8 00000000 E	  call SetTextColor
-				  INVOKE ExitProcess,0
- 0000012A  6A 00	   *	    push   +000000000h
- 0000012C  E8 00000000 E   *	    call   ExitProcess
+				 ;je Equal
+				 ;Equal:
+				 ; mov eax, (black*16) + green
+				 ; call SetTextColor
+				 ; mov edx, OFFSET user_input
+				 ; call WriteString
+				 ; mov eax, (black*16) + white
+				 ; call SetTextColor
+				 ; INVOKE ExitProcess,0
 				  
 
- 00000131  BE 00000000		 mov esi,0 
- 00000136  BE 000000EB R	 mov esi, OFFSET true_string
+ 000000FE  BE 00000000		 mov esi,0 
+ 00000103  BE 000000EB R	 mov esi, OFFSET [true_string]
 				 
- 0000013B  BB 00000000		 mov ebx, 0
- 00000140  BB 000000E5 R	 mov ebx, OFFSET user_input
+				 ;mov ebx, 0
+				 ;mov ebx, OFFSET user_input
+ 00000108  BF 000000E5 R	 mov edi, OFFSET [user_input]
 				 
- 00000145  B9 00000005		 mov ecx, (LENGTHOF true_string) - 1
+				 ;mov ecx, (LENGTHOF true_string) - 1
+ 0000010D  B9 00000006		 mov ecx, LENGTHOF true_string
+ 00000112  F3/ A6		 repe cmpsb
+ 00000114  83 F9 00		 cmp ecx, 0
+ 00000117  74 02		 je Here
+ 00000119  75 31		 jne outer
+ 0000011B			 Here:
+ 0000011B  B8 00000002		    mov eax,(black*16) + green
+ 00000120  E8 00000000 E	    call SetTextColor
+ 00000125  BA 000000E5 R	    mov edx, OFFSET user_input
+ 0000012A  E8 00000000 E	    call WriteString
+ 0000012F  B8 0000000F		    mov eax,(black*16) + white
+ 00000134  E8 00000000 E	    call SetTextColor
+				    INVOKE ExitProcess,0
+ 00000139  6A 00	   *	    push   +000000000h
+ 0000013B  E8 00000000 E   *	    call   ExitProcess
 
- 0000014A  8B 13		 mov edx, [ebx]
+				 ;NotEqual:
+				 ;  mov edi, OFFSET [user_input]
+				 ;  mov esi, OFFSET [true_string]
+				 ;  mov ecx, (LENGTHOF true_string)
+				   
+				 ;  cmpsb
+				 ;  je Match
+				 ;  jne PotentialMatch2
+ 00000140  BF 000000E5 R	 mov edi, OFFSET [user_input]
+ 00000145  BE 000000EB R	 mov esi, OFFSET [true_string]
+ 0000014A  B2 01		 mov dl, 1
  0000014C			 outer:
- 0000014C  8B 13		    mov edx, [ebx]
- 0000014E  3B 16		    cmp edx, [esi]
- 00000150  73 02			jae DirectMatch
- 00000152  75 21			jne PotentialMatch
+ 0000014C  FC			  cld
+ 0000014D  A6			  cmpsb
+ 0000014E  4F			  dec edi
+ 0000014F  4E			  dec esi
+ 00000150  74 02		  je DirectMatch
+ 00000152  75 21		  jne PotentialMatch
 
- 00000154				DirectMatch:
- 00000154  B8 00000002			 mov eax,(black*16) + green
- 00000159  E8 00000000 E	     call SetTextColor
- 0000015E  8A 03		     mov al, [ebx]
- 00000160  E8 00000000 E	     call WriteChar
- 00000165  B8 0000000F		     mov eax,(black*16) + white
- 0000016A  E8 00000000 E	     call SetTextColor
- 0000016F  B0 00			 mov al, 0
- 00000171  3C 00			 cmp al, 0
- 00000173  74 56			 je Escape
+ 00000154			  DirectMatch:
+ 00000154  B8 00000002		   mov eax,(black*16) + green
+ 00000159  E8 00000000 E	   call SetTextColor
+ 0000015E  8A 07		   mov al, [edi]
+ 00000160  E8 00000000 E	   call WriteChar
+ 00000165  B8 0000000F		   mov eax,(black*16) + white
+ 0000016A  E8 00000000 E	   call SetTextColor
+ 0000016F  B0 00		   mov al, 0
+ 00000171  3C 00		   cmp al, 0
+ 00000173  74 56		   je Escape
 
- 00000175				PotentialMatch:
- 00000175  B2 01		     mov dl, 1
- 00000177				 inner:
- 00000177  8A 03			  mov al, [ebx]
- 00000179  8A 1E		      mov bl, [esi]
- 0000017B  3A C3			  cmp al, bl
- 0000017D  74 0A		      je Found
- 0000017F  46				  inc esi
- 00000180  FE C2		      inc dl
- 00000182  80 FA 06		      cmp dl, 6
- 00000185  74 23		      je DoesNotExist
- 00000187  75 EE		      jne inner
+ 00000175			  PotentialMatch:
+ 00000175  8A 07		   mov al, [edi]
+ 00000177  BF 000000EB R	   mov edi, OFFSET [true_string]
+ 0000017C  B9 00000006		   mov ecx, LENGTHOF true_string
+ 00000181  FC			   cld
+ 00000182  F2/ AE		   repne scasb
+ 00000184  75 24		   jnz NotFound
+ 00000186  4F			   dec edi
+ 00000187  74 00		   jz Found
 
- 00000189				Found:
- 00000189  B8 0000000E		     mov eax,(black*16) + yellow
- 0000018E  E8 00000000 E	     call SetTextColor
- 00000193  8A 03		     mov al, [ebx]
- 00000195  E8 00000000 E	     call WriteChar
- 0000019A  B8 0000000F		     mov eax,(black*16) + white
- 0000019F  E8 00000000 E	     call SetTextColor
- 000001A4  B0 00		     mov al, 0
- 000001A6  3C 00		     cmp al,0
- 000001A8  74 21		     je Escape
+ 00000189			  Found:
+ 00000189  B8 0000000E		   mov eax,(black*16) + yellow
+ 0000018E  E8 00000000 E	   call SetTextColor
+				   ;mov al, [ebx]
+ 00000193  8A 07		   mov al, [edi]
+ 00000195  E8 00000000 E	   call WriteChar
+ 0000019A  B8 0000000F		   mov eax,(black*16) + white
+ 0000019F  E8 00000000 E	   call SetTextColor
+ 000001A4  B0 00		   mov al, 0
+ 000001A6  3C 00		   cmp al,0
+ 000001A8  74 21		   je Escape
 
- 000001AA				DoesNotExist:
- 000001AA  B8 00000004		     mov eax,(black*16) + red
- 000001AF  E8 00000000 E	     call SetTextColor
- 000001B4  8A 03		     mov al, [ebx]
- 000001B6  E8 00000000 E	     call WriteChar
- 000001BB  B8 0000000F		     mov eax,(black*16) + white
- 000001C0  E8 00000000 E	     call SetTextColor
- 000001C5  B0 00		     mov al, 0
- 000001C7  3C 00		     cmp al,0
- 000001C9  74 00		     je Escape
+ 000001AA			   NotFound:
+ 000001AA  B8 00000004		    mov eax,(black*16) + red
+ 000001AF  E8 00000000 E	    call SetTextColor
+ 000001B4  8A 07		    mov al, [edi]
+ 000001B6  E8 00000000 E	    call WriteChar
+ 000001BB  B8 0000000F		    mov eax,(black*16) + white
+ 000001C0  E8 00000000 E	    call SetTextColor
+ 000001C5  B0 00		    mov al, 0
+ 000001C7  3C 00		    cmp al,0
+ 000001C9  74 00		    je Escape
 
- 000001CB				Escape:
- 000001CB  46				 inc esi
- 000001CC  43				 inc ebx
-				     ;inc edx
- 000001CD  66| 49		     dec cx
- 000001CF  0F 85 FFFFFF77	     jne outer
- 000001D5  E8 00000000 E	 call Crlf
- 000001DA  C3			 ret
- 000001DB			ProcessInput ENDP
+ 000001CB			   Escape:
+ 000001CB  46			    inc esi
+ 000001CC  47			    inc edi
+				    ;dec cx
+ 000001CD  FE C2		    inc dl
+ 000001CF  80 FA 06		    cmp dl, 6
+ 000001D2  0F 85 FFFFFF74	    jne outer
+
+ 000001D8  E8 00000000 E	 call Crlf
+ 000001DD  C3			 ret
+ 000001DE			ProcessInput ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/10/22 23:18:40
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/11/22 09:43:59
 wordle.asm						     Symbols 2 - 1
 
 
@@ -382,7 +409,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 DWord	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 0000010A DWord	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000001DB DWord	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000001DE DWord	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -439,14 +466,13 @@ OutputLoad . . . . . . . . . . .	P Near	 0000003B _TEXT	Length= 00000081 Public 
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ProcessInput . . . . . . . . . .	P Near	 000000DB _TEXT	Length= 00000100 Public STDCALL
-  Equal  . . . . . . . . . . . .	L Near	 0000010C _TEXT	
+ProcessInput . . . . . . . . . .	P Near	 000000DB _TEXT	Length= 00000103 Public STDCALL
+  Here . . . . . . . . . . . . .	L Near	 0000011B _TEXT	
   outer  . . . . . . . . . . . .	L Near	 0000014C _TEXT	
   DirectMatch  . . . . . . . . .	L Near	 00000154 _TEXT	
   PotentialMatch . . . . . . . .	L Near	 00000175 _TEXT	
-  inner  . . . . . . . . . . . .	L Near	 00000177 _TEXT	
   Found  . . . . . . . . . . . .	L Near	 00000189 _TEXT	
-  DoesNotExist . . . . . . . . .	L Near	 000001AA _TEXT	
+  NotFound . . . . . . . . . . .	L Near	 000001AA _TEXT	
   Escape . . . . . . . . . . . .	L Near	 000001CB _TEXT	
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
