@@ -152,7 +152,7 @@ ProcessInput PROC
  repe cmpsb
  cmp ecx, 0
  je Here
- jne outer
+ jne NotEqual
  Here:
     mov eax,(black*16) + green
     call SetTextColor
@@ -170,11 +170,16 @@ ProcessInput PROC
  ;  cmpsb
  ;  je Match
  ;  jne PotentialMatch2
+ NotEqual:
  mov edi, OFFSET [user_input]
  mov esi, OFFSET [true_string]
  mov dl, 1
  outer:
-  cld
+  mov al, [esi]
+  mov dl, [edi]
+  cmp al, dl
+  je DirectMatch
+  ;cld
   cmpsb
   dec edi
   dec esi
@@ -198,8 +203,9 @@ ProcessInput PROC
    mov ecx, LENGTHOF true_string
    cld
    repne scasb
+   mov edi, OFFSET [user_input]
    jnz NotFound
-   dec edi
+   ;dec edi
    jz Found
 
   Found:
