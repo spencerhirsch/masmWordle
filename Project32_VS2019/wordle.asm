@@ -115,77 +115,50 @@ CollectString ENDP
 ; the correctness of the users inputted value.
 ;======================================================
 ProcessInput PROC
- mov edx, OFFSET input_string
+ mov edx, OFFSET input_string       ; Output input header
  call WriteString
- mov edx, OFFSET user_input
+ mov edx, OFFSET user_input         ; Take user input
  mov ecx, (LENGTHOF user_input) 
- call ReadString ;;;;;;;;;
+ call ReadString 
 
- mov edx, OFFSET attempt_string
+ mov edx, OFFSET attempt_string     ; Output attempt header
  call WriteString
  
- ; Didn't work, would like to implement.
- ;mov esi, OFFSET [true_string]
- ;mov edi, OFFSET [user_input]
- ;repe cmpsb
-
- ;je Equal
- ;Equal:
- ; mov eax, (black*16) + green
- ; call SetTextColor
- ; mov edx, OFFSET user_input
- ; call WriteString
- ; mov eax, (black*16) + white
- ; call SetTextColor
- ; INVOKE ExitProcess,0
-  
-
- mov esi,0 
- mov esi, OFFSET [true_string]
- 
- ;mov ebx, 0
- ;mov ebx, OFFSET user_input
+ ; Initialize register values with input from the users
+ mov esi, OFFSET [true_string]      
  mov edi, OFFSET [user_input]
  
- ;mov ecx, (LENGTHOF true_string) - 1
+ ; Do a complete comparison of the strings
  mov ecx, LENGTHOF true_string
- repe cmpsb
+ repe cmpsb             ; 
  cmp ecx, 0
- je Here
- jne NotEqual
- Here:
-    mov eax,(black*16) + green
-    call SetTextColor
-    mov edx, OFFSET user_input
-    call WriteString
-    mov eax,(black*16) + white
-    call SetTextColor
-    INVOKE ExitProcess,0
+ je CompleteEqual       ; If equal output to user and terminate program
+ jne NotEqual           ; If not call the NotEqual function
+ CompleteEqual:         ; Check for complete equality of the inputted value
+  mov eax,(black*16) + green      ; Change text color to gree
+  call SetTextColor
+  mov edx, OFFSET user_input
+  call WriteString                ; Print user inputted value
+  mov eax,(black*16) + white
+  call SetTextColor
+  INVOKE ExitProcess,0            ; Input was correct, terminate the program
 
- ;NotEqual:
- ;  mov edi, OFFSET [user_input]
- ;  mov esi, OFFSET [true_string]
- ;  mov ecx, (LENGTHOF true_string)
-   
- ;  cmpsb
- ;  je Match
- ;  jne PotentialMatch2
- NotEqual:
- mov edi, OFFSET [user_input]
+ NotEqual:                        ; If complete equality was not acheived
+ mov edi, OFFSET [user_input]       ; Reinitialize registers
  mov esi, OFFSET [true_string]
- mov dl, 1
+ mov dl, 1                          ; initialize counter register
  outer:
-  mov al, [esi]
+  mov al, [esi]                     ; Byte comparison for strings
   mov dl, [edi]
-  cmp al, dl
-  je DirectMatch
-  ;cld
-  cmpsb
-  dec edi
-  dec esi
+  cmp al, dl                        ; Check for equality
   je DirectMatch
   jne PotentialMatch
+  ;cmpsb
+  ;dec edi ;probs!!!!!!!            ; DONT THINK WE NEED< BUT DON"T FUCKING TOUCH
+  ;dec esi
+  ;jne PotentialMatch
 
+  ; Given that the characters match
   DirectMatch:
    mov eax,(black*16) + green
    call SetTextColor
@@ -193,12 +166,14 @@ ProcessInput PROC
    call WriteChar
    mov eax,(black*16) + white
    call SetTextColor
-   mov al, 0
-   cmp al, 0
+   mov bl, 0
+   cmp bl, 0
    je Escape
 
+  ; If characters don't match, check to see if an instance of the
+  ; character exists within the string.
   PotentialMatch:
-   mov al, [edi]
+   ;mov al, [edi]
    mov edi, OFFSET [true_string]
    mov ecx, LENGTHOF true_string
    cld
@@ -211,7 +186,6 @@ ProcessInput PROC
   Found:
    mov eax,(black*16) + yellow
    call SetTextColor
-   ;mov al, [ebx]
    mov al, [edi]
    call WriteChar
    mov eax,(black*16) + white
@@ -223,7 +197,7 @@ ProcessInput PROC
    NotFound:
     mov eax,(black*16) + red
     call SetTextColor
-    mov al, [edi]
+    mov al, [edi]       ; probs
     call WriteChar
     mov eax,(black*16) + white
     call SetTextColor
@@ -234,7 +208,6 @@ ProcessInput PROC
    Escape:
     inc esi
     inc edi
-    ;dec cx
     inc dl
     cmp dl, 6
     jne outer
