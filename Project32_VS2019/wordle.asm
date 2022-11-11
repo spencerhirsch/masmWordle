@@ -16,41 +16,30 @@ input_string BYTE "Input: ",0
 attempt_string BYTE "Attempt: ",0
 
 ; Variable that is used to store the user input from the ReadString function
-user_input BYTE 5 DUP(?)		; Limit on the number of characters that
+user_input BYTE 6 DUP(?)		; Limit on the number of characters that
 								; can be read from the user by setting size
 								; to 5
 
 ; String given by the user when the program begins, this is the string that
 ; will be used for comparisons from the user input
-true_string BYTE 5 DUP(?)
+true_string BYTE 6 DUP(?)
 prompt_message BYTE "Input expected String: ",0
 
 index BYTE 1
 
 .code
 main PROC
+ ; Call the procedures
  call OutputLoad
  call CollectString
  call WaitMsg
  call Crlf
- call Crlf
-; call SetTextColor ( will use to show incorrect letters, correct placement, and valid letter but incorrect placement. )
-; mov eax, green
-; call SetTextColor
-; revert color back to white, do this for each character read in from the user.
- 
+ call Crlf 
+
  mov al, index
  mov edi,6
  L1:
-  call ProcessInput		; Want to implement a check to see if the user inputted a value that is actually of length 5
-							; If greater than 5 output to the console and and notify the user and allow for reinput
-
-							; implement a state machine to do character comparison, output each character in a color
-							; to signifiy the input has correct placement, character is in word, or character is not in
-							; the word
-
-							; would like to have a display at the bottom of the screen of all valid characters, after each
-							; input the list of characters would be updated to show whether that was tried and not in the word 
+  call ProcessInput		
   inc al
   mov index, al
   push edi
@@ -110,12 +99,11 @@ OutputLoad ENDP
 ;======================================================
 CollectString PROC
  mov edx, OFFSET prompt_message
- call WriteString
- ;call DisableEcho ; Need to implement
+ call WriteString					; print message to console asking for input
+
  mov edx, OFFSET true_string
- mov ecx, (LENGTHOF true_string) + 1
- call ReadString
- ;call EnableEcho : Need to implement
+ mov ecx, (LENGTHOF true_string)
+ call ReadString					; save the inputted value for true_string
  call Crlf
  ret
 CollectString ENDP
@@ -130,51 +118,95 @@ ProcessInput PROC
  mov edx, OFFSET input_string
  call WriteString
  mov edx, OFFSET user_input
- mov ecx, (LENGTHOF user_input) + 1
- call ReadString
-; implement a state machine to do the comparison for all values of the input.
+ mov ecx, (LENGTHOF user_input) 
+ call ReadString ;;;;;;;;;
+
  mov edx, OFFSET attempt_string
  call WriteString
- ;mov index, al
- ;mov edx, OFFSET index
- ;call WriteInt
+ 
+ ; Didn't work, would like to implement.
+ ;mov esi, OFFSET [true_string]
+ ;mov edi, OFFSET [user_input]
+ ;repe cmpsb
 
- mov al, [user_input]
- ; or al, 20h
- ; need to make true string lowercase
- cmp al, [true_string] 
- je DirectMatch
- jne DoesExist
+ ;je Equal
+ ;Equal:
+ ; mov eax, (black*16) + green
+ ; call SetTextColor
+ ; mov edx, OFFSET user_input
+ ; call WriteString
+ ; mov eax, (black*16) + white
+ ; call SetTextColor
+ ; INVOKE ExitProcess,0
+  
 
- DirectMatch:
-  mov eax,(black*16) + green
-  call SetTextColor
-  mov al, [user_input]
-  call WriteChar
-  mov eax,(black*16) + white
-  call SetTextColor
+ mov esi,0 
+ mov esi, OFFSET true_string
+ 
+ mov ebx, 0
+ mov ebx, OFFSET user_input
+ 
+ mov ecx, (LENGTHOF true_string) - 1
 
+ mov edx, [ebx]
+ outer:
+    mov edx, [ebx]
+    cmp edx, [esi]
+	jae DirectMatch
+	jne PotentialMatch
 
- DoesExist:
-  mov eax,(black*16) + red
-  call SetTextColor
-  mov al, [user_input]
-  call WriteChar
-  mov eax,(black*16) + white
-  call SetTextColor
+	DirectMatch:
+	 mov eax,(black*16) + green
+     call SetTextColor
+     mov al, [ebx]
+     call WriteChar
+     mov eax,(black*16) + white
+     call SetTextColor
+	 mov al, 0
+	 cmp al, 0
+	 je Escape
 
+	PotentialMatch:
+     mov dl, 1
+	 inner:
+	  mov al, [ebx]
+      mov bl, [esi]
+	  cmp al, bl
+      je Found
+	  inc esi
+      inc dl
+      cmp dl, 6
+      je DoesNotExist
+      jne inner
 
- call WriteChar
- call Crlf
- mov al, [user_input + 1]
- call WriteChar
- call Crlf
+	Found:
+     mov eax,(black*16) + yellow
+     call SetTextColor
+     mov al, [ebx]
+     call WriteChar
+     mov eax,(black*16) + white
+     call SetTextColor
+     mov al, 0
+     cmp al,0
+     je Escape
 
+	DoesNotExist:
+     mov eax,(black*16) + red
+     call SetTextColor
+     mov al, [ebx]
+     call WriteChar
+     mov eax,(black*16) + white
+     call SetTextColor
+     mov al, 0
+     cmp al,0
+     je Escape
 
-
-
- mov edx, OFFSET user_input
- call WriteString
+	Escape:
+	 inc esi
+	 inc ebx
+     ;inc edx
+     dec cx
+     jne outer
  call Crlf
  ret
 ProcessInput ENDP
