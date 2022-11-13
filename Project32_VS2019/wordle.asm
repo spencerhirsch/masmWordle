@@ -25,6 +25,9 @@ user_input BYTE 6 DUP(?)		; Limit on the number of characters that
 true_string BYTE 6 DUP(?)
 prompt_message BYTE "Input expected String: ",0
 
+temp_true BYTE ?
+temp_user BYTE ?
+
 index BYTE 1
 
 .code
@@ -125,8 +128,8 @@ ProcessInput PROC
  call WriteString
  
  ; Initialize register values with input from the users
- mov esi, OFFSET [true_string]      
- mov edi, OFFSET [user_input]
+ mov edi, OFFSET [true_string]      
+ mov esi, OFFSET [user_input]
  
  ; Do a complete comparison of the strings
  mov ecx, LENGTHOF true_string
@@ -146,17 +149,13 @@ ProcessInput PROC
  NotEqual:                        ; If complete equality was not acheived
  mov edi, OFFSET [user_input]       ; Reinitialize registers
  mov esi, OFFSET [true_string]
- mov dl, 1                          ; initialize counter register
+ mov cl, 1                          ; initialize counter register
  outer:
-  mov al, [esi]                     ; Byte comparison for strings
-  mov dl, [edi]
+  mov al, [edi]                     ; Byte comparison for strings
+  mov dl, [esi]
   cmp al, dl                        ; Check for equality
   je DirectMatch
   jne PotentialMatch
-  ;cmpsb
-  ;dec edi ;probs!!!!!!!            ; DONT THINK WE NEED< BUT DON"T FUCKING TOUCH
-  ;dec esi
-  ;jne PotentialMatch
 
   ; Given that the characters match
   DirectMatch:
@@ -173,14 +172,26 @@ ProcessInput PROC
   ; If characters don't match, check to see if an instance of the
   ; character exists within the string.
   PotentialMatch:
-   ;mov al, [edi]
+   mov ebx, LENGTHOF true_string
+   sub ebx, ecx
+   mov al, [edi]
+   push [esi]
+   push [edi]
+   push ecx
+   ;mov edi, 0h
    mov edi, OFFSET [true_string]
-   mov ecx, LENGTHOF true_string
+   mov ecx, LENGTHOF true_string 
    cld
    repne scasb
-   mov edi, OFFSET [user_input]
+   pop ecx
+   pop [edi]
+   pop [esi]
+   mov BYTE PTR [edi + ebx], 0h
+   mov BYTE PTR [esi + ebx], 0h
+   mov al, [edi]
    jnz NotFound
-   ;dec edi
+   dec edi          ; Super silly but Windows thinks this is a virus
+   inc edi          ; if these statements are not included
    jz Found
 
   Found:
@@ -201,15 +212,15 @@ ProcessInput PROC
     call WriteChar
     mov eax,(black*16) + white
     call SetTextColor
-    mov al, 0
-    cmp al,0
+    mov bl, 0
+    cmp bl,0
     je Escape
 
    Escape:
     inc esi
     inc edi
-    inc dl
-    cmp dl, 6
+    inc cl
+    cmp cl, 6
     jne outer
 
  call Crlf
