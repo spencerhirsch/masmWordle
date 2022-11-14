@@ -11,6 +11,12 @@ rule1 BYTE "1. The inputted word must be 5 characters.",0
 rule2 BYTE "2. All words can be found in the English dictionary.",0
 rule3 BYTE "3. You only have 6 chances to figure out the word.",0
 luck BYTE "Good Luck!",0
+fail BYTE "Better Luck Next Time!",0
+pass BYTE "Wow! That Was Impressive!",0
+score_message BYTE "You scored: ",0
+points_message BYTE " Points",0
+points DWORD 600
+
 ; Messages displayed as the user inputs words into the console
 input_string BYTE "Input: ",0
 attempt_string BYTE "Attempt: ",0
@@ -42,14 +48,34 @@ main PROC
  mov al, index
  mov edi,6
  L1:
-  call ProcessInput		
+  mov edx, OFFSET attempt_string
+  call WriteString
+  call WriteInt
+  call Crlf
+  push edi
+  push eax
+  call ProcessInput
+  mov eax, points
+  sub eax, 100
+  mov points, eax
+  pop eax		
   inc al
   mov index, al
-  push edi
   pop edi
   dec edi
   jnz L1
 
+mov edx, OFFSET fail
+call WriteString
+call Crlf
+mov edx, OFFSET score_message
+call WriteString
+mov al, 0
+call WriteInt
+mov edx, OFFSET points_message
+call WriteString
+call Crlf
+call Crlf
 INVOKE ExitProcess,0
 main ENDP
 
@@ -144,6 +170,18 @@ ProcessInput PROC
   call WriteString                ; Print user inputted value
   mov eax,(black*16) + white
   call SetTextColor
+  call Crlf
+  call Crlf
+  mov edx, OFFSET pass
+  call WriteString
+  call Crlf
+  mov edx, OFFSET score_message
+  call WriteString
+  mov eax, points
+  call WriteInt
+  mov edx, OFFSET points_message
+  call WriteString
+  call Crlf
   INVOKE ExitProcess,0            ; Input was correct, terminate the program
 
  NotEqual:                        ; If complete equality was not acheived
@@ -165,18 +203,14 @@ ProcessInput PROC
    call WriteChar
    mov eax,(black*16) + white
    call SetTextColor
-   mov bl, 0
-   cmp bl, 0
-   je Escape
+   jmp Escape
 
   ; If characters don't match, check to see if an instance of the
   ; character exists within the string.
   PotentialMatch:
-   mov ebx, LENGTHOF true_string
-   sub ebx, ecx
    mov al, [edi]
-   push [esi]
-   push [edi]
+   push esi
+   push edi
    push ecx
    ;mov edi, 0h
    mov edi, OFFSET [true_string]
@@ -184,10 +218,10 @@ ProcessInput PROC
    cld
    repne scasb
    pop ecx
-   pop [edi]
-   pop [esi]
-   mov BYTE PTR [edi + ebx], 0h
-   mov BYTE PTR [esi + ebx], 0h
+   pop edi
+   pop esi
+   ;mov BYTE PTR [edi + ebx], 0h
+   ;mov BYTE PTR [esi + ebx], 0h
    mov al, [edi]
    jnz NotFound
    dec edi          ; Super silly but Windows thinks this is a virus
@@ -201,9 +235,7 @@ ProcessInput PROC
    call WriteChar
    mov eax,(black*16) + white
    call SetTextColor
-   mov al, 0
-   cmp al,0
-   je Escape
+   jmp Escape
 
    NotFound:
     mov eax,(black*16) + red
@@ -212,9 +244,7 @@ ProcessInput PROC
     call WriteChar
     mov eax,(black*16) + white
     call SetTextColor
-    mov bl, 0
-    cmp bl,0
-    je Escape
+    jmp Escape
 
    Escape:
     inc esi
@@ -223,6 +253,7 @@ ProcessInput PROC
     cmp cl, 6
     jne outer
 
+ call Crlf
  call Crlf
  ret
 ProcessInput ENDP
