@@ -1,3 +1,2 @@
 ﻿  Assembling wordle.asm...
-c:\Irvine\SmallWin.inc(11): warning A4011: multiple .MODEL directives found : .MODEL ignored
   Project.vcxproj -> C:\Users\spenc\Documents\GitHub\masm_wordle\Project32_VS2019\Debug\Project.exe
