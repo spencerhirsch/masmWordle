@@ -232,9 +232,13 @@ OutputLoad ENDP
 CollectString PROC
  mov edx, OFFSET prompt_message
  call WriteString			; Output message		
+ mov eax, (black*16) + black
+ call SetTextColor			; Hide input from user
  mov edx, OFFSET true_string
  mov ecx, (LENGTHOF true_string)
  call ReadString            ; Read input
+ mov eax, (black*16) + white
+ call SetTextColor			; Revert text color to white
  mov edi, OFFSET [true_string]
  mov ecx, LENGTHOF true_string - 1
  call IsValid		        ; Check if input length is valid
