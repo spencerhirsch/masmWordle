@@ -16,6 +16,9 @@ INCLUDE Irvine32.inc
 ;--------------------------------------------------------
 intro BYTE "Welcome to WORDLE!",0
 ruleIntro BYTE "The rules of the game are simple:",0
+green_message BYTE "Green: Letter included in string, correct placement.",0
+yellow_message BYTE "Yellow: Letter included in string, incorrect placement.",0
+red_message BYTE "Red: Letter is not included within the string.",0
 rule1 BYTE "1. This is more fun with two people, therefore, a two player game.",0
 rule2 BYTE "2. One user must input a word for the other to guess.",0
 rule3 BYTE "3. The inputted word must be 5 characters.",0
@@ -84,7 +87,7 @@ main PROC
 
  mov al, index                  ; Initialize number of attempts
  mov edi,6                      ; Loop decrement varialbe
- 
+
 ;--------------------------------------------------------
 ; Driver loop that takes care of the number of attempts
 ; of the user. Calculates the number of points the user
@@ -93,47 +96,52 @@ main PROC
 ;--------------------------------------------------------
  L1:
   mov edx, OFFSET attempt_string
-  call WriteString
-  call WriteInt
+  call WriteString          
+  call WriteInt             ; Write the number of attempts
+                            ; to console
   call Crlf
-  push edi
+  push edi                  ; Save values to stack
   push eax
-  call ProcessInput
-  mov eax, points
-  sub eax, 100
+  call ProcessInput         ; Take input from user and process
+                            ; it accordingly
+
+  mov eax, points           ; Do point calculations based on
+  sub eax, 100              ; number of attempts
   mov points, eax
   mov edx, OFFSET current_points
-  call WriteString
+  call WriteString          
   mov eax, points
-  call WriteInt
+  call WriteInt             ; Print number of points to console
   mov edx, OFFSET points_message
   call WriteString
   call Crlf
   call Crlf
-  pop eax		
+  pop eax		            ; Remove value from the stack
   inc al
-  mov index, al
-  pop edi
-  dec edi
+  mov index, al             ; Load the current index into variable
+  pop edi                   ; Remove value from the stack
+  dec edi                   ; Decrement loop counter
   jnz L1
 
 mov eax, (black*16) + lightRed
-call SetTextColor
+call SetTextColor           
 mov edx, OFFSET fail
-call WriteString
+call WriteString            ; Write faile message
 call Crlf
 mov edx, OFFSET score_message
-call WriteString
+call WriteString            
 mov al, 0
 call WriteInt
 mov edx, OFFSET points_message
-call WriteString
+call WriteString            ; Write number of points
+                            ; to the console
 call Crlf
 call Crlf
 mov eax, (black*16) + white
 call SetTextColor
-INVOKE ExitProcess,0
+INVOKE ExitProcess,0       ; Once done, exit the program
 main ENDP
+
 
 ;--------------------------------------------------------
 ;					OutputLoad PROC
@@ -156,8 +164,26 @@ OutputLoad PROC
  call WriteString
  call Crlf
  call Crlf
- ; Output the list of rules to the console for the user
- ; to read
+;--------------------------------------------------------
+; Output the various rules of the program to the console
+; before it prompts the user for input.
+;--------------------------------------------------------
+ mov eax, (black*16) + lightGreen
+ call SetTextColor
+ mov edx, OFFSET green_message
+ call WriteString
+ call Crlf
+ mov eax, (black*16) + yellow
+ call SetTextColor
+ mov edx, OFFSET yellow_message
+ call WriteString
+ call Crlf
+ mov eax, (black*16) + lightRed
+ call SetTextColor
+ mov edx, OFFSET red_message
+ call WriteString
+ call Crlf
+ call Crlf
  mov eax, (black*16) + cyan
  call SetTextColor
  mov edx, OFFSET rule1		
@@ -184,8 +210,8 @@ OutputLoad PROC
  call Crlf
  call Crlf
  mov dl,29
- mov dh,12
- call GoToXY
+ mov dh,17
+ call GoToXY                ; Change position
  mov eax, (black*16) + lightMagenta
  call SetTextColor
  mov edx, OFFSET luck		; Output final message
@@ -193,7 +219,7 @@ OutputLoad PROC
  call Crlf
  call Crlf
  mov eax, (black*16) + white
- call SetTextColor
+ call SetTextColor          ; Revert color back
  ret
 OutputLoad ENDP
 
@@ -205,16 +231,17 @@ OutputLoad ENDP
 ;--------------------------------------------------------
 CollectString PROC
  mov edx, OFFSET prompt_message
- call WriteString					
+ call WriteString			; Output message		
  mov edx, OFFSET true_string
  mov ecx, (LENGTHOF true_string)
- call ReadString
+ call ReadString            ; Read input
  mov edi, OFFSET [true_string]
  mov ecx, LENGTHOF true_string - 1
- call IsValid		
+ call IsValid		        ; Check if input length is valid
  call Crlf
- ret
+ ret                        ; Return back to callee proc
 CollectString ENDP
+
 
 ;--------------------------------------------------------
 ;                   IsValid PROC
@@ -224,29 +251,28 @@ CollectString ENDP
 ; requirements.
 ;--------------------------------------------------------
 IsValid PROC
- mov al, 0h
- ;mov edi, OFFSET [true_string]
- ;mov ecx, LENGTHOF true_string - 1
+ mov al, 0h                 ; Move null character to register
  cld
- repne scasb
- jnz Return
- jz NotValid
+ repne scasb                ; Search string for null
+ jnz Return                 ; If not found
+ jz NotValid                ; If found
  
  NotValid:
   call Crlf
-  mov eax,(black*16) + red
-  call SetTextColor
-  mov edx, OFFSET not_valid
-  call WriteString
+  mov eax,(black*16) + lightRed  
+  call SetTextColor         ; Change text to red
+  mov edx, OFFSET not_valid 
+  call WriteString          ; Write invalid message
   mov eax,(black*16) + white
-  call SetTextColor
+  call SetTextColor         ; Rever color
   call Crlf
-  INVOKE ExitProcess,0
+  INVOKE ExitProcess,0      ; Exit the program
    
  Return:
-  ret 
+  ret                       ; Return to callee
 IsValid ENDP
  
+
 ;--------------------------------------------------------
 ;					ProcessInput PROC
 ; Procedure takes input from the user and compares it to
@@ -254,131 +280,149 @@ IsValid ENDP
 ; the correctness of the users inputted value.
 ;--------------------------------------------------------
 ProcessInput PROC
- mov edx, OFFSET input_string       ; Output input header
- call WriteString
- mov edx, OFFSET user_input         ; Take user input
+ mov edx, OFFSET input_string       
+ call WriteString           ; Output input header
+
+ mov edx, OFFSET user_input         
  mov ecx, (LENGTHOF user_input) 
- call ReadString
+ call ReadString            ; Take user input
+
  mov edi, OFFSET [user_input]
  mov ecx, LENGTHOF user_input - 1 
- call IsValid
- mov edx, OFFSET attempt_string     ; Output attempt header
- call WriteString
+ call IsValid               ; Check to see if input is
+                            ; valid
+
+ mov edx, OFFSET attempt_string     
+ call WriteString           ; Output attempt header
  
  ; Initialize register values with input from the users
  mov edi, OFFSET [true_string]      
  mov esi, OFFSET [user_input]
  
- ; Do a complete comparison of the strings
  mov ecx, LENGTHOF true_string
- repe cmpsb             ; 
+ repe cmpsb                 ; Check to see if strings match 
  cmp ecx, 0
- je CompleteEqual       ; If equal output to user and terminate program
- jne NotEqual           ; If not call the NotEqual function
- CompleteEqual:         ; Check for complete equality of the inputted value
-  mov eax,(black*16) + lightGreen      ; Change text color to gree
-  call SetTextColor
+ je CompleteEqual           ; If equal output to user and 
+                            ; terminate program
+ jne NotEqual               ; If not jump to NotEqual
+
+
+;--------------------------------------------------------
+; If compare function jumps, the strings are exact
+; matches. In this case, output the number of points to
+; the user and congratulate. Once, completed. Terminate
+; the program.
+;--------------------------------------------------------
+ CompleteEqual:            
+  mov eax,(black*16) + lightGreen 
+  call SetTextColor         ; Change text color to light green
   mov edx, OFFSET user_input
-  call WriteString                ; Print user inputted value
-  mov eax,(black*16) + lightGreen
-  call SetTextColor
+  call WriteString          ; Print user inputted value
   call Crlf
   call Crlf
 
   mov eax, points
   
-  cmp eax, 600
-  je Impossible
+  cmp eax, 600              ; Determine output based on 
+  je Impossible             ; number of points acquired
   cmp eax, 300
   jae Good
   jb Ok
   
-  Impossible:
+  Impossible:               ; If guessed correctly first try
    mov edx, OFFSET attempt1
-   call WriteString
-   jmp Break
+   call WriteString         ; Write string
+   jmp Break               
   
-  Good:
+  Good:                     ; If gotten within four tries
    mov edx, OFFSET pass
-   call WriteString
+   call WriteString         ; Write string
    jmp Break
   
-  Ok:
+  Ok:                       ; If gotten in 5 or 6 tries
    mov edx, OFFSET ok_message
-   call WriteString
+   call WriteString         ; Write string
    jmp Break
   
-  Break:
+  Break:                    ; Output messages to user, terminate
    mov eax, (black*16) + white
-   call SetTextColor
+   call SetTextColor        ; Revert textcolor
    call Crlf
    mov edx, OFFSET score_message
-   call WriteString
-   mov eax, points
-   call WriteInt
+   call WriteString         ; Output leading score message
+   mov eax, points          
+   call WriteInt            ; Output number of points
    mov edx, OFFSET points_message
-   call WriteString
+   call WriteString         ; Follow by the unit (Points)
    call Crlf
-   INVOKE ExitProcess,0            ; Input was correct, terminate the program
+   INVOKE ExitProcess,0     ; Terminate the program
 
- NotEqual:                        ; If complete equality was not acheived
+;--------------------------------------------------------
+; If the input did not match the correct string. Iterate 
+; through the two strings and determine the color of the
+; character to output to the console.Once completed return 
+; to main and continue iterating through the program until
+; either, the correct string is inputted or the number of 
+; tries has run out.
+;--------------------------------------------------------
+
+ NotEqual:                  ; If complete equality was not acheived
   mov edi, OFFSET [user_input]       ; Reinitialize registers
   mov esi, OFFSET [true_string]
-  mov cl, 1                          ; initialize counter register
-  outer:
-   mov al, [edi]                     ; Byte comparison for strings
+  mov cl, 1                 ; Initialize counter register
+  outer:                    ; Iterate through characters in string
+   mov al, [edi]            ; Byte comparison for strings
    mov dl, [esi]
-   cmp al, dl                        ; Check for equality
-   je DirectMatch
-   jne PotentialMatch
+   cmp al, dl               ; Check for equality
+   je DirectMatch           ; If character match
+   jne PotentialMatch       ; Else
 
-   ; Given that the characters match
-   DirectMatch:
+   DirectMatch:             ; Given that the characters match
     mov eax,(black*16) + lightGreen
-    call SetTextColor
+    call SetTextColor       ; Change text color
     mov al, [edi]
-    call WriteChar
+    call WriteChar          ; Output character
     mov eax,(black*16) + white
-    call SetTextColor
-    jmp Escape
+    call SetTextColor       ; Revert text color
+    jmp Escape              ; Jump to Escape
 
-   PotentialMatch:
-    mov al, [edi]
-    push esi
-    push edi
+   PotentialMatch:          ; Check to see if instance of character
+    mov al, [edi]           ; exists within the user inputted string
+    push esi                
+    push edi                ; Store values on stack
     push ecx
     mov edi, OFFSET [true_string]
     mov ecx, LENGTHOF true_string 
     cld
-    repne scasb
-    pop ecx
+    repne scasb             ; Check for instance of inputted character
+    pop ecx                 ; in given string
     pop edi
-    pop esi
+    pop esi                 ; Pop all of the values from the stack
     mov al, [edi]
-    jnz NotFound
-    jz Found
+    jnz NotFound            ; If no instance of character
+    jz Found                ; Else
 
-   Found:
+   Found:                   ; If character exists within the string
     mov eax,(black*16) + yellow
-    call SetTextColor
+    call SetTextColor       ; Change text color
     mov al, [edi]
-    call WriteChar
+    call WriteChar          ; Output character
     mov eax,(black*16) + white
-    call SetTextColor
-    jmp Escape
+    call SetTextColor       ; Revert text color
+    jmp Escape              ; Jump to escape
 
-   NotFound:
+   NotFound:                ; If not instance of character is found
     mov eax,(black*16) + lightRed
-    call SetTextColor
-    mov al, [edi]       ; probs
-    call WriteChar
+    call SetTextColor       ; Change color of output
+    mov al, [edi]       
+    call WriteChar          ; Write character to console
     mov eax,(black*16) + white
-    call SetTextColor
-    jmp Escape
+    call SetTextColor       ; Revert text color
+    jmp Escape              ; Jump to escape
 
-   Escape:
-    inc esi
-    inc edi
+   Escape:                  ; Increment the loop until no longer
+    inc esi                 ; valid. Check every characeter in
+    inc edi                 ; string.
     inc cl
     cmp cl, 6
     jne outer
@@ -386,8 +430,9 @@ ProcessInput PROC
  call Crlf
  call Crlf
  mov edx, OFFSET minus_points
- call WriteString
+ call WriteString           ; Out number of points lost
  call Crlf
- ret
+ ret                        ; Return to driver loop in main PROC
 ProcessInput ENDP
 END main
+
