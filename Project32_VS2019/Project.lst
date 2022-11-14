@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/13/22 21:53:09
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/13/22 21:59:41
 wordle.asm						     Page 1 - 1
 
 
@@ -365,22 +365,24 @@ wordle.asm						     Page 1 - 1
  000001C2  BA 000002B8 R	 mov edx, OFFSET true_string
  000001C7  B9 00000006		 mov ecx, (LENGTHOF true_string)
  000001CC  E8 00000000 E	 call ReadString
- 000001D1  E8 00000006		 call IsValidInitial				
- 000001D6  E8 00000000 E	 call Crlf
- 000001DB  C3			 ret
- 000001DC			CollectString ENDP
+ 000001D1  BF 000002B8 R	 mov edi, OFFSET [true_string]
+ 000001D6  B9 00000005		 mov ecx, LENGTHOF true_string - 1
+ 000001DB  E8 00000006		 call IsValid		
+ 000001E0  E8 00000000 E	 call Crlf
+ 000001E5  C3			 ret
+ 000001E6			CollectString ENDP
 
 				;--------------------------------------------------------
-				;                   IsValidInitial PROC
+				;                   IsValid PROC
 				; Check validity of the inputted strings. If strings are
 				; determined to be invalid. Exit the program. The user
 				; must ensure that the length of the string meets the 
 				; requirements.
 				;--------------------------------------------------------
- 000001DC			IsValidInitial PROC
- 000001DC  B0 00		 mov al, 0h
- 000001DE  BF 000002B8 R	 mov edi, OFFSET [true_string]
- 000001E3  B9 00000005		 mov ecx, LENGTHOF true_string - 1
+ 000001E6			IsValid PROC
+ 000001E6  B0 00		 mov al, 0h
+				 ;mov edi, OFFSET [true_string]
+				 ;mov ecx, LENGTHOF true_string - 1
  000001E8  FC			 cld
  000001E9  F2/ AE		 repne scasb
  000001EB  75 31		 jnz Return
@@ -401,7 +403,7 @@ wordle.asm						     Page 1 - 1
 				   
  0000021E			 Return:
  0000021E  C3			  ret 
- 0000021F			IsValidInitial ENDP
+ 0000021F			IsValid ENDP
 
 				;--------------------------------------------------------
 				;                   IsValidSecondary PROC
@@ -449,140 +451,142 @@ wordle.asm						     Page 1 - 1
  00000267  E8 00000000 E	 call WriteString
  0000026C  BA 000002B2 R	 mov edx, OFFSET user_input         ; Take user input
  00000271  B9 00000006		 mov ecx, (LENGTHOF user_input) 
- 00000276  E8 00000000 E	 call ReadString 
- 0000027B  E8 FFFFFF9F		 call IsValidSecondary
- 00000280  BA 000002A8 R	 mov edx, OFFSET attempt_string     ; Output attempt header
- 00000285  E8 00000000 E	 call WriteString
+ 00000276  E8 00000000 E	 call ReadString
+ 0000027B  BF 000002B2 R	 mov edi, OFFSET [user_input]
+ 00000280  B9 00000005		 mov ecx, LENGTHOF user_input - 1 
+ 00000285  E8 FFFFFF5C		 call IsValid
+ 0000028A  BA 000002A8 R	 mov edx, OFFSET attempt_string     ; Output attempt header
+ 0000028F  E8 00000000 E	 call WriteString
 				 
 				 ; Initialize register values with input from the users
- 0000028A  BF 000002B8 R	 mov edi, OFFSET [true_string]      
- 0000028F  BE 000002B2 R	 mov esi, OFFSET [user_input]
+ 00000294  BF 000002B8 R	 mov edi, OFFSET [true_string]      
+ 00000299  BE 000002B2 R	 mov esi, OFFSET [user_input]
 				 
 				 ; Do a complete comparison of the strings
- 00000294  B9 00000006		 mov ecx, LENGTHOF true_string
- 00000299  F3/ A6		 repe cmpsb             ; 
- 0000029B  83 F9 00		 cmp ecx, 0
- 0000029E  74 06		 je CompleteEqual       ; If equal output to user and terminate program
- 000002A0  0F 85 0000009A	 jne NotEqual           ; If not call the NotEqual function
- 000002A6			 CompleteEqual:         ; Check for complete equality of the inputted value
- 000002A6  B8 0000000A		  mov eax,(black*16) + lightGreen      ; Change text color to gree
- 000002AB  E8 00000000 E	  call SetTextColor
- 000002B0  BA 000002B2 R	  mov edx, OFFSET user_input
- 000002B5  E8 00000000 E	  call WriteString                ; Print user inputted value
- 000002BA  B8 0000000A		  mov eax,(black*16) + lightGreen
- 000002BF  E8 00000000 E	  call SetTextColor
- 000002C4  E8 00000000 E	  call Crlf
- 000002C9  E8 00000000 E	  call Crlf
+ 0000029E  B9 00000006		 mov ecx, LENGTHOF true_string
+ 000002A3  F3/ A6		 repe cmpsb             ; 
+ 000002A5  83 F9 00		 cmp ecx, 0
+ 000002A8  74 06		 je CompleteEqual       ; If equal output to user and terminate program
+ 000002AA  0F 85 0000009A	 jne NotEqual           ; If not call the NotEqual function
+ 000002B0			 CompleteEqual:         ; Check for complete equality of the inputted value
+ 000002B0  B8 0000000A		  mov eax,(black*16) + lightGreen      ; Change text color to gree
+ 000002B5  E8 00000000 E	  call SetTextColor
+ 000002BA  BA 000002B2 R	  mov edx, OFFSET user_input
+ 000002BF  E8 00000000 E	  call WriteString                ; Print user inputted value
+ 000002C4  B8 0000000A		  mov eax,(black*16) + lightGreen
+ 000002C9  E8 00000000 E	  call SetTextColor
+ 000002CE  E8 00000000 E	  call Crlf
+ 000002D3  E8 00000000 E	  call Crlf
 
- 000002CE  A1 0000029C R	  mov eax, points
+ 000002D8  A1 0000029C R	  mov eax, points
 				  
- 000002D3  3D 00000258		  cmp eax, 600
- 000002D8  74 09		  je Impossible
- 000002DA  3D 0000012C		  cmp eax, 300
- 000002DF  73 0E		  jae Good
- 000002E1  72 18		  jb Ok
+ 000002DD  3D 00000258		  cmp eax, 600
+ 000002E2  74 09		  je Impossible
+ 000002E4  3D 0000012C		  cmp eax, 300
+ 000002E9  73 0E		  jae Good
+ 000002EB  72 18		  jb Ok
 				  
- 000002E3			  Impossible:
- 000002E3  BA 000001E7 R	   mov edx, OFFSET attempt1
- 000002E8  E8 00000000 E	   call WriteString
- 000002ED  EB 18		   jmp Break
+ 000002ED			  Impossible:
+ 000002ED  BA 000001E7 R	   mov edx, OFFSET attempt1
+ 000002F2  E8 00000000 E	   call WriteString
+ 000002F7  EB 18		   jmp Break
 				  
- 000002EF			  Good:
- 000002EF  BA 00000202 R	   mov edx, OFFSET pass
- 000002F4  E8 00000000 E	   call WriteString
- 000002F9  EB 0C		   jmp Break
+ 000002F9			  Good:
+ 000002F9  BA 00000202 R	   mov edx, OFFSET pass
+ 000002FE  E8 00000000 E	   call WriteString
+ 00000303  EB 0C		   jmp Break
 				  
- 000002FB			  Ok:
- 000002FB  BA 0000021C R	   mov edx, OFFSET ok_message
- 00000300  E8 00000000 E	   call WriteString
- 00000305  EB 00		   jmp Break
+ 00000305			  Ok:
+ 00000305  BA 0000021C R	   mov edx, OFFSET ok_message
+ 0000030A  E8 00000000 E	   call WriteString
+ 0000030F  EB 00		   jmp Break
 				  
- 00000307			  Break:
- 00000307  B8 0000000F		   mov eax, (black*16) + white
- 0000030C  E8 00000000 E	   call SetTextColor
- 00000311  E8 00000000 E	   call Crlf
- 00000316  BA 0000023C R	   mov edx, OFFSET score_message
- 0000031B  E8 00000000 E	   call WriteString
- 00000320  A1 0000029C R	   mov eax, points
- 00000325  E8 00000000 E	   call WriteInt
- 0000032A  BA 00000249 R	   mov edx, OFFSET points_message
- 0000032F  E8 00000000 E	   call WriteString
- 00000334  E8 00000000 E	   call Crlf
+ 00000311			  Break:
+ 00000311  B8 0000000F		   mov eax, (black*16) + white
+ 00000316  E8 00000000 E	   call SetTextColor
+ 0000031B  E8 00000000 E	   call Crlf
+ 00000320  BA 0000023C R	   mov edx, OFFSET score_message
+ 00000325  E8 00000000 E	   call WriteString
+ 0000032A  A1 0000029C R	   mov eax, points
+ 0000032F  E8 00000000 E	   call WriteInt
+ 00000334  BA 00000249 R	   mov edx, OFFSET points_message
+ 00000339  E8 00000000 E	   call WriteString
+ 0000033E  E8 00000000 E	   call Crlf
 				   INVOKE ExitProcess,0            ; Input was correct, terminate the program
- 00000339  6A 00	   *	    push   +000000000h
- 0000033B  E8 00000000 E   *	    call   ExitProcess
+ 00000343  6A 00	   *	    push   +000000000h
+ 00000345  E8 00000000 E   *	    call   ExitProcess
 
- 00000340			 NotEqual:                        ; If complete equality was not acheived
- 00000340  BF 000002B2 R	  mov edi, OFFSET [user_input]       ; Reinitialize registers
- 00000345  BE 000002B8 R	  mov esi, OFFSET [true_string]
- 0000034A  B1 01		  mov cl, 1                          ; initialize counter register
- 0000034C			  outer:
- 0000034C  8A 07		   mov al, [edi]                     ; Byte comparison for strings
- 0000034E  8A 16		   mov dl, [esi]
- 00000350  3A C2		   cmp al, dl                        ; Check for equality
- 00000352  74 02		   je DirectMatch
- 00000354  75 1D		   jne PotentialMatch
+ 0000034A			 NotEqual:                        ; If complete equality was not acheived
+ 0000034A  BF 000002B2 R	  mov edi, OFFSET [user_input]       ; Reinitialize registers
+ 0000034F  BE 000002B8 R	  mov esi, OFFSET [true_string]
+ 00000354  B1 01		  mov cl, 1                          ; initialize counter register
+ 00000356			  outer:
+ 00000356  8A 07		   mov al, [edi]                     ; Byte comparison for strings
+ 00000358  8A 16		   mov dl, [esi]
+ 0000035A  3A C2		   cmp al, dl                        ; Check for equality
+ 0000035C  74 02		   je DirectMatch
+ 0000035E  75 1D		   jne PotentialMatch
 
 				   ; Given that the characters match
- 00000356			   DirectMatch:
- 00000356  B8 0000000A		    mov eax,(black*16) + lightGreen
- 0000035B  E8 00000000 E	    call SetTextColor
- 00000360  8A 07		    mov al, [edi]
- 00000362  E8 00000000 E	    call WriteChar
- 00000367  B8 0000000F		    mov eax,(black*16) + white
- 0000036C  E8 00000000 E	    call SetTextColor
- 00000371  EB 55		    jmp Escape
+ 00000360			   DirectMatch:
+ 00000360  B8 0000000A		    mov eax,(black*16) + lightGreen
+ 00000365  E8 00000000 E	    call SetTextColor
+ 0000036A  8A 07		    mov al, [edi]
+ 0000036C  E8 00000000 E	    call WriteChar
+ 00000371  B8 0000000F		    mov eax,(black*16) + white
+ 00000376  E8 00000000 E	    call SetTextColor
+ 0000037B  EB 55		    jmp Escape
 
- 00000373			   PotentialMatch:
- 00000373  8A 07		    mov al, [edi]
- 00000375  56			    push esi
- 00000376  57			    push edi
- 00000377  51			    push ecx
- 00000378  BF 000002B8 R	    mov edi, OFFSET [true_string]
- 0000037D  B9 00000006		    mov ecx, LENGTHOF true_string 
- 00000382  FC			    cld
- 00000383  F2/ AE		    repne scasb
- 00000385  59			    pop ecx
- 00000386  5F			    pop edi
- 00000387  5E			    pop esi
- 00000388  8A 07		    mov al, [edi]
- 0000038A  75 1F		    jnz NotFound
- 0000038C  74 00		    jz Found
+ 0000037D			   PotentialMatch:
+ 0000037D  8A 07		    mov al, [edi]
+ 0000037F  56			    push esi
+ 00000380  57			    push edi
+ 00000381  51			    push ecx
+ 00000382  BF 000002B8 R	    mov edi, OFFSET [true_string]
+ 00000387  B9 00000006		    mov ecx, LENGTHOF true_string 
+ 0000038C  FC			    cld
+ 0000038D  F2/ AE		    repne scasb
+ 0000038F  59			    pop ecx
+ 00000390  5F			    pop edi
+ 00000391  5E			    pop esi
+ 00000392  8A 07		    mov al, [edi]
+ 00000394  75 1F		    jnz NotFound
+ 00000396  74 00		    jz Found
 
- 0000038E			   Found:
- 0000038E  B8 0000000E		    mov eax,(black*16) + yellow
- 00000393  E8 00000000 E	    call SetTextColor
- 00000398  8A 07		    mov al, [edi]
- 0000039A  E8 00000000 E	    call WriteChar
- 0000039F  B8 0000000F		    mov eax,(black*16) + white
- 000003A4  E8 00000000 E	    call SetTextColor
- 000003A9  EB 1D		    jmp Escape
+ 00000398			   Found:
+ 00000398  B8 0000000E		    mov eax,(black*16) + yellow
+ 0000039D  E8 00000000 E	    call SetTextColor
+ 000003A2  8A 07		    mov al, [edi]
+ 000003A4  E8 00000000 E	    call WriteChar
+ 000003A9  B8 0000000F		    mov eax,(black*16) + white
+ 000003AE  E8 00000000 E	    call SetTextColor
+ 000003B3  EB 1D		    jmp Escape
 
- 000003AB			   NotFound:
- 000003AB  B8 0000000C		    mov eax,(black*16) + lightRed
- 000003B0  E8 00000000 E	    call SetTextColor
- 000003B5  8A 07		    mov al, [edi]       ; probs
- 000003B7  E8 00000000 E	    call WriteChar
- 000003BC  B8 0000000F		    mov eax,(black*16) + white
- 000003C1  E8 00000000 E	    call SetTextColor
- 000003C6  EB 00		    jmp Escape
+ 000003B5			   NotFound:
+ 000003B5  B8 0000000C		    mov eax,(black*16) + lightRed
+ 000003BA  E8 00000000 E	    call SetTextColor
+ 000003BF  8A 07		    mov al, [edi]       ; probs
+ 000003C1  E8 00000000 E	    call WriteChar
+ 000003C6  B8 0000000F		    mov eax,(black*16) + white
+ 000003CB  E8 00000000 E	    call SetTextColor
+ 000003D0  EB 00		    jmp Escape
 
- 000003C8			   Escape:
- 000003C8  46			    inc esi
- 000003C9  47			    inc edi
- 000003CA  FE C1		    inc cl
- 000003CC  80 F9 06		    cmp cl, 6
- 000003CF  0F 85 FFFFFF77	    jne outer
+ 000003D2			   Escape:
+ 000003D2  46			    inc esi
+ 000003D3  47			    inc edi
+ 000003D4  FE C1		    inc cl
+ 000003D6  80 F9 06		    cmp cl, 6
+ 000003D9  0F 85 FFFFFF77	    jne outer
 
- 000003D5  E8 00000000 E	 call Crlf
- 000003DA  E8 00000000 E	 call Crlf
- 000003DF  BA 00000251 R	 mov edx, OFFSET minus_points
- 000003E4  E8 00000000 E	 call WriteString
- 000003E9  E8 00000000 E	 call Crlf
- 000003EE  C3			 ret
- 000003EF			ProcessInput ENDP
+ 000003DF  E8 00000000 E	 call Crlf
+ 000003E4  E8 00000000 E	 call Crlf
+ 000003E9  BA 00000251 R	 mov edx, OFFSET minus_points
+ 000003EE  E8 00000000 E	 call WriteString
+ 000003F3  E8 00000000 E	 call Crlf
+ 000003F8  C3			 ret
+ 000003F9			ProcessInput ENDP
 				END main
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/13/22 21:53:09
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/13/22 21:59:41
 wordle.asm						     Symbols 2 - 1
 
 
@@ -677,7 +681,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 000002D7 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000003EF Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000003F9 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -687,7 +691,7 @@ Procedures, parameters, and locals:
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-CollectString  . . . . . . . . .	P Near	 000001B8 _TEXT	Length= 00000024 Public STDCALL
+CollectString  . . . . . . . . .	P Near	 000001B8 _TEXT	Length= 0000002E Public STDCALL
 CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -725,12 +729,12 @@ HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-IsValidInitial . . . . . . . . .	P Near	 000001DC _TEXT	Length= 00000043 Public STDCALL
-  NotValid . . . . . . . . . . .	L Near	 000001EF _TEXT	
-  Return . . . . . . . . . . . .	L Near	 0000021E _TEXT	
 IsValidSecondary . . . . . . . .	P Near	 0000021F _TEXT	Length= 00000043 Public STDCALL
   NotValid . . . . . . . . . . .	L Near	 00000232 _TEXT	
   Return . . . . . . . . . . . .	L Near	 00000261 _TEXT	
+IsValid  . . . . . . . . . . . .	P Near	 000001E6 _TEXT	Length= 00000039 Public STDCALL
+  NotValid . . . . . . . . . . .	L Near	 000001EF _TEXT	
+  Return . . . . . . . . . . . .	L Near	 0000021E _TEXT	
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -740,19 +744,19 @@ OutputLoad . . . . . . . . . . .	P Near	 000000CE _TEXT	Length= 000000EA Public 
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ProcessInput . . . . . . . . . .	P Near	 00000262 _TEXT	Length= 0000018D Public STDCALL
-  CompleteEqual  . . . . . . . .	L Near	 000002A6 _TEXT	
-  Impossible . . . . . . . . . .	L Near	 000002E3 _TEXT	
-  Good . . . . . . . . . . . . .	L Near	 000002EF _TEXT	
-  Ok . . . . . . . . . . . . . .	L Near	 000002FB _TEXT	
-  Break  . . . . . . . . . . . .	L Near	 00000307 _TEXT	
-  NotEqual . . . . . . . . . . .	L Near	 00000340 _TEXT	
-  outer  . . . . . . . . . . . .	L Near	 0000034C _TEXT	
-  DirectMatch  . . . . . . . . .	L Near	 00000356 _TEXT	
-  PotentialMatch . . . . . . . .	L Near	 00000373 _TEXT	
-  Found  . . . . . . . . . . . .	L Near	 0000038E _TEXT	
-  NotFound . . . . . . . . . . .	L Near	 000003AB _TEXT	
-  Escape . . . . . . . . . . . .	L Near	 000003C8 _TEXT	
+ProcessInput . . . . . . . . . .	P Near	 00000262 _TEXT	Length= 00000197 Public STDCALL
+  CompleteEqual  . . . . . . . .	L Near	 000002B0 _TEXT	
+  Impossible . . . . . . . . . .	L Near	 000002ED _TEXT	
+  Good . . . . . . . . . . . . .	L Near	 000002F9 _TEXT	
+  Ok . . . . . . . . . . . . . .	L Near	 00000305 _TEXT	
+  Break  . . . . . . . . . . . .	L Near	 00000311 _TEXT	
+  NotEqual . . . . . . . . . . .	L Near	 0000034A _TEXT	
+  outer  . . . . . . . . . . . .	L Near	 00000356 _TEXT	
+  DirectMatch  . . . . . . . . .	L Near	 00000360 _TEXT	
+  PotentialMatch . . . . . . . .	L Near	 0000037D _TEXT	
+  Found  . . . . . . . . . . . .	L Near	 00000398 _TEXT	
+  NotFound . . . . . . . . . . .	L Near	 000003B5 _TEXT	
+  Escape . . . . . . . . . . . .	L Near	 000003D2 _TEXT	
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL

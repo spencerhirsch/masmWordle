@@ -209,22 +209,24 @@ CollectString PROC
  mov edx, OFFSET true_string
  mov ecx, (LENGTHOF true_string)
  call ReadString
- call IsValidInitial				
+ mov edi, OFFSET [true_string]
+ mov ecx, LENGTHOF true_string - 1
+ call IsValid		
  call Crlf
  ret
 CollectString ENDP
 
 ;--------------------------------------------------------
-;                   IsValidInitial PROC
+;                   IsValid PROC
 ; Check validity of the inputted strings. If strings are
 ; determined to be invalid. Exit the program. The user
 ; must ensure that the length of the string meets the 
 ; requirements.
 ;--------------------------------------------------------
-IsValidInitial PROC
+IsValid PROC
  mov al, 0h
- mov edi, OFFSET [true_string]
- mov ecx, LENGTHOF true_string - 1
+ ;mov edi, OFFSET [true_string]
+ ;mov ecx, LENGTHOF true_string - 1
  cld
  repne scasb
  jnz Return
@@ -243,41 +245,8 @@ IsValidInitial PROC
    
  Return:
   ret 
-IsValidInitial ENDP
-
-;--------------------------------------------------------
-;                   IsValidSecondary PROC
-; Check validity of the inputted strings. If strings are
-; determined to be invalid. Exit the program. The user
-; must ensure that the length of the string meets the 
-; requirements.
-;--------------------------------------------------------
-IsValidSecondary PROC
- mov al, 0h
- mov edi, OFFSET [user_input]
- mov ecx, LENGTHOF user_input - 1
- cld
- repne scasb
- jnz Return
- jz NotValid
+IsValid ENDP
  
- NotValid:
-  call Crlf
-  mov eax,(black*16) + red
-  call SetTextColor
-  mov edx, OFFSET not_valid
-  call WriteString
-  mov eax,(black*16) + white
-  call SetTextColor
-  call Crlf
-  INVOKE ExitProcess,0
-   
- Return:
-  ret 
-IsValidSecondary ENDP
-
- 
-
 ;--------------------------------------------------------
 ;					ProcessInput PROC
 ; Procedure takes input from the user and compares it to
@@ -289,8 +258,10 @@ ProcessInput PROC
  call WriteString
  mov edx, OFFSET user_input         ; Take user input
  mov ecx, (LENGTHOF user_input) 
- call ReadString 
- call IsValidSecondary
+ call ReadString
+ mov edi, OFFSET [user_input]
+ mov ecx, LENGTHOF user_input - 1 
+ call IsValid
  mov edx, OFFSET attempt_string     ; Output attempt header
  call WriteString
  
