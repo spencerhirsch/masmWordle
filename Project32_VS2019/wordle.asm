@@ -142,8 +142,12 @@ mov eax, (black*16) + white
 call SetTextColor
 mov edx, OFFSET correct_word
 call WriteString
+mov eax, (black*16) + lightGreen
+call SetTextColor
 mov edx, OFFSET true_string
 call WriteString
+mov eax, (black+16) + white
+call SetTextColor
 call Crlf
 INVOKE ExitProcess,0       ; Once done, exit the program
 main ENDP
