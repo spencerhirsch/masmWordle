@@ -41,6 +41,7 @@ points_message BYTE " Points",0
 minus_points BYTE "-100 Points!",0
 current_points BYTE "Potential points: ",0
 not_valid BYTE "The inputted string is of an invalid size.",0
+correct_word BYTE "The correct word was: ",0
 
 points DWORD 600      ; Initial number of potential points
 
@@ -139,6 +140,11 @@ call Crlf
 call Crlf
 mov eax, (black*16) + white
 call SetTextColor
+mov edx, OFFSET correct_word
+call WriteString
+mov edx, OFFSET true_string
+call WriteString
+call Crlf
 INVOKE ExitProcess,0       ; Once done, exit the program
 main ENDP
 
