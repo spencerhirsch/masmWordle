@@ -65,7 +65,7 @@ user_input BYTE 6 DUP(?)
 ; user input
 ;--------------------------------------------------------
 true_string BYTE 6 DUP(?)
-prompt_message BYTE "Input expected String: ",0
+prompt_message BYTE "Input expected String (INPUT IS HIDDEN): ",0
 
 index BYTE 1        ; Used for number of attempts
 
