@@ -9,6 +9,28 @@
 ;.model flat, stdcall
 INCLUDE Irvine32.inc
 
+ToUpper MACRO char
+ mov esi, char
+ mov ecx, 5
+ StandardizeCase:
+  mov al, [esi]
+  cmp al, 0
+  je OutLoop
+  cmp al, 'a'
+  jb NextLetter
+  cmp al, 'z'
+  ja NextLetter
+  and BYTE PTR [esi], 11011111b
+  
+ NextLetter:
+  inc esi
+  jmp StandardizeCase
+ 
+ OutLoop:
+  mov ecx, 0
+  
+ENDM
+ 
 .data
 ;--------------------------------------------------------
 ; All of the messages displayed to the user upon
@@ -242,6 +264,9 @@ OutputLoad ENDP
 CollectString PROC
  mov edx, OFFSET prompt_message
  call WriteString			; Output message		
+ 
+ ToUpper edx
+ 
  mov eax, (black*16) + black
  call SetTextColor			; Hide input from user
  mov edx, OFFSET true_string
@@ -300,6 +325,8 @@ ProcessInput PROC
  mov edx, OFFSET user_input         
  mov ecx, (LENGTHOF user_input) 
  call ReadString            ; Take user input
+ 
+ ToUpper edx
 
  mov edi, OFFSET [user_input]
  mov ecx, LENGTHOF user_input - 1 
