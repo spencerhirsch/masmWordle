@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/16/22 21:04:01
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/16/22 21:21:29
 wordle.asm						     Page 1 - 1
 
 
@@ -707,7 +707,7 @@ wordle.asm						     Page 1 - 1
  0000047D			ProcessInput ENDP
 				END main
 
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/16/22 21:04:01
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/16/22 21:21:29
 wordle.asm						     Symbols 2 - 1
 
 
