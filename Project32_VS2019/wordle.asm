@@ -6,29 +6,31 @@
 ;--------------------------------------------------------
 
 .386
-;.model flat, stdcall
 INCLUDE Irvine32.inc
-
+;-------------------------------------------------------
+; Macro used to convert all of the characters in a given
+; string to uppercase. So that the inputs will always
+; match regardless of case.
+;-------------------------------------------------------
 ToUpper MACRO char
- mov esi, char
- mov ecx, 5
+ mov esi, char                  ; Move string to reg
+ mov ecx, 5                     ; Counter for loop
  StandardizeCase:
   mov al, [esi]
-  cmp al, 0
-  je OutLoop
+  cmp al, 0                     ; Do comparison
+  je OutLoop                    
   cmp al, 'a'
-  jb NextLetter
+  jb NextLetter                 ; Jump
   cmp al, 'z'
-  ja NextLetter
+  ja NextLetter                 ; Jump
   and BYTE PTR [esi], 11011111b
   
- NextLetter:
-  inc esi
+ NextLetter:                    ; Move to next letter
+  inc esi                       ; in string
   jmp StandardizeCase
  
- OutLoop:
+ OutLoop:                  
   mov ecx, 0
-  
 ENDM
  
 .data
@@ -263,15 +265,13 @@ OutputLoad ENDP
 ;--------------------------------------------------------
 CollectString PROC
  mov edx, OFFSET prompt_message
- call WriteString			; Output message		
- 
- ToUpper edx
- 
+ call WriteString			; Output message		 
  mov eax, (black*16) + black
  call SetTextColor			; Hide input from user
  mov edx, OFFSET true_string
  mov ecx, (LENGTHOF true_string)
  call ReadString            ; Read input
+ ToUpper edx                ; Call toUpper macro
  mov eax, (black*16) + white
  call SetTextColor			; Revert text color to white
  mov edi, OFFSET [true_string]
@@ -326,7 +326,7 @@ ProcessInput PROC
  mov ecx, (LENGTHOF user_input) 
  call ReadString            ; Take user input
  
- ToUpper edx
+ ToUpper edx                ; Call toUpper macro
 
  mov edi, OFFSET [user_input]
  mov ecx, LENGTHOF user_input - 1 
