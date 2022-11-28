@@ -128,6 +128,15 @@ pointsUser1 FWORD ?
 pointsUser2 FWORD ?
 numberOfRounds DWORD ?
 index BYTE 1        ; Used for number of attempts
+currentRound DWORD 1
+inform BYTE "Give it a go ",0
+exclaim BYTE "!",0
+
+;--------------------------------------------------------
+; Values used for the outputted screen of the scores
+;--------------------------------------------------------
+winnerMsg BYTE "Congratulations, ",0
+divider BYTE 50 DUP ("=")
 
 .code
 ;--------------------------------------------------------
@@ -190,12 +199,49 @@ main PROC
   cmp eax, [numberOfRounds]
   ja NotValid
  
+ mov eax, [numberOfRounds] 
+ mul eax, 2
+ mov [numberOfRounds], eax
+ 
+ Control: ; Loop used to control the number of rounds of the game
+
+ mov eax, currentRound MOD 2
+ cmp eax, 1
+ je PlayerOne
+ jne PlayerTwo
+
+ PlayerOne:
+  mov eax, (black*16) + lightGreen
+  call SetTextColor
+  mov edx, OFFSET inform
+  call WriteString
+  mov edx, OFFSET user1
+  call WriteString
+  mov edx, OFFSET exclaim
+  call WriteString
+  call Crlf
+  jmp Cont
+
+ PlayerTwo:
+  mov eax, (black*16) + lightGreen
+  call SetTextColor
+  mov edx, OFFSET inform
+  call WriteString
+  mov edx, OFFSET user2
+  call WriteString
+  mov edx, OFFSET exclaim
+  call WriteString
+  call Crlf
+
+ Cont:
+  mov eax, (black*16) + white
+  call SetTextColor
  
  call CollectString             ; Take string from user
  call WaitMsg                
  call Crlf
  call Crlf 
-
+ 
  mov al, index                  ; Initialize number of attempts
  mov edi,6                      ; Loop decrement varialbe
 
@@ -401,6 +447,36 @@ DisplayLoad PROC
  Escape:
   ret 
 DisplayLoad ENDP
+
+ScoreScreen PROC
+ call ClrScr
+ mov edx, OFFSET winnerMsg
+ call WriteString
+ call Crlf
+ call Crlf
+ mov edx, OFFSET divider
+ call WriteString
+ call Crlf
+ ; add titles for the names of the columns
+ mov edx, OFFSET divider
+ call WriteString
+ call Crlf
+ ; Output the names and the scores of each use in sorted order
+
+ mov eax, [user1Points]
+ mov ebx, [user2Points]
+ cmp eax, ebx
+ ; Need to create a case for ties.
+ ja PlayerOne
+ jb PlayerTwo
+
+ PlayerOne:
+  ; Write a MACRO for this
+ PlayerTwo:
+
+ call WriteString
+ mov edx, 
+ScoreScreen ENDP
 
 ;--------------------------------------------------------
 ;					DisplayRules PROC
