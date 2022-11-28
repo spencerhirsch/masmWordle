@@ -110,6 +110,7 @@ attempt_string BYTE "Attempt: ",0
 ;--------------------------------------------------------
 user_input BYTE 6 DUP(?)
 
+
 ;--------------------------------------------------------
 ; String given by the user when the program begins, this 
 ; is the string that will be used for comparisons from the 
@@ -117,8 +118,15 @@ user_input BYTE 6 DUP(?)
 ;--------------------------------------------------------
 true_string BYTE 6 DUP(?)
 prompt_message BYTE "Input expected String (INPUT IS HIDDEN): ",0
-player1 BYTE 10 DUP(?)
-player2 BYTE 10 DUP(?)
+welcomeMsg BYTE "Welcome ",0
+user1 BYTE 10 DUP(?)
+user2 BYTE 10 DUP(?)
+promptUser1 BYTE "Player 1: ",0
+promptUser2 BYTE "Player 2: ",0
+promptNumber BYTE "Number of Rounds (1-5): ",0
+pointsUser1 FWORD ?
+pointsUser2 FWORD ?
+numberOfRounds DWORD ?
 index BYTE 1        ; Used for number of attempts
 
 .code
@@ -132,6 +140,57 @@ index BYTE 1        ; Used for number of attempts
 main PROC
  ; Call the procedures
  call DisplayLoad
+ call ClrScr
+ mov edx, OFFSET promptUser1
+ call WriteString
+ mov edx, OFFSET user1
+ mov ecx, (LENGTHOF user1)
+ call ReadString
+ mov edx, OFFSET welcomeMsg
+ call WriteString
+ mov edx, OFFSET user1
+ call WriteString
+ call Crlf
+ call Crlf
+ mov edx, OFFSET promptUser2
+ call WriteString
+ mov edx, OFFSET user2
+ mov ecx, (LENGTHOF user2)
+ call ReadString
+ mov edx, OFFSET welcomeMsg
+ call WriteString
+ mov edx, OFFSET user2
+ call WriteString
+ call Crlf
+ call Crlf
+ mov edx, OFFSET promptNumber
+ call WriteString
+ mov edx, OFFSET numberOfRounds
+ mov ecx, (LENGTHOF numberOfRounds)
+ call ReadInt
+ mov eax, 0
+ cmp eax, [numberOfRounds] 
+ jbe NotValid
+ ja Good
+ 
+
+ NotValid:
+  call Crlf
+  mov eax, (black*16) + lightRed
+  call SetTextColor
+  mov edx, OFFSET not_valid
+  call WriteString
+  mov eax, (black*16) + white
+  call SetTextColor
+  call Crlf
+  INVOKE ExitProcess,0
+ 
+ Good:
+  mov eax, 5
+  cmp eax, [numberOfRounds]
+  ja NotValid
+ 
+ 
  call CollectString             ; Take string from user
  call WaitMsg                
  call Crlf
