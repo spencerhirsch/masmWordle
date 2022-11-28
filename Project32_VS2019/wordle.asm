@@ -52,6 +52,32 @@ rule6 BYTE "6. You only have 6 chances to figure out the word.",0
 rule7 BYTE "7. There are a possible 600 points to score.",0
 
 ;--------------------------------------------------------
+;  Set of options that displays upon running the program
+;--------------------------------------------------------
+opt1 BYTE "1",0
+opt2 BYTE "2",0
+opt3 BYTE "3",0
+opt4 BYTE "4",0
+options BYTE "Please select an option: ",0
+option1 BYTE "(1.) Rules",0
+option2 BYTE "(2.) Helpful Tips",0
+option3 BYTE "(3.) How Scoring Works",0
+option4 BYTE "(4.) Play Game",0
+inputOptionPrompt BYTE "Type the number of the option you would like: ",0
+helpful BYTE "Here are some helpful tips: ",0
+helpful1 BYTE "1. Use vowels.",0
+helpful2 BYTE "2. Use common letters",0
+helpful3 BYTE "3. Avoid repeat letters not included.",0
+scoring BYTE "This is how the scoring works.",0
+scoring1 BYTE "1. Scores are calculated based on number of tries.",0
+scoring2 BYTE "2. Scores are summed over a specified number of games.",0
+scoring3 BYTE "3. Each player has the same number of tries per game.",0
+scoring4 BYTE "4. The person with the most points wins!",0
+invalidInput BYTE "The input character is invalid. Your game ends here. Better luck next time!",0
+inputOption BYTE 2 DUP(?)
+
+
+;--------------------------------------------------------
 ; All of the potential messages that are used upon the 
 ; completion of the program.
 ;--------------------------------------------------------
@@ -91,7 +117,8 @@ user_input BYTE 6 DUP(?)
 ;--------------------------------------------------------
 true_string BYTE 6 DUP(?)
 prompt_message BYTE "Input expected String (INPUT IS HIDDEN): ",0
-
+player1 BYTE 10 DUP(?)
+player2 BYTE 10 DUP(?)
 index BYTE 1        ; Used for number of attempts
 
 .code
@@ -104,7 +131,7 @@ index BYTE 1        ; Used for number of attempts
 ;--------------------------------------------------------
 main PROC
  ; Call the procedures
- call OutputLoad                ; Show loading screen
+ call DisplayLoad
  call CollectString             ; Take string from user
  call WaitMsg                
  call Crlf
@@ -176,14 +203,7 @@ call Crlf
 INVOKE ExitProcess,0       ; Once done, exit the program
 main ENDP
 
-
-;--------------------------------------------------------
-;					OutputLoad PROC
-; Function outputs the rules of the game to the console
-; before waiting for user input. Allows the user to 
-; understand how to play the game.
-;--------------------------------------------------------
-OutputLoad PROC
+DisplayLoad PROC
  mov eax, (black*16) + lightMagenta
  call SetTextColor
  mov dl,25					; Change the position of the 
@@ -194,23 +214,152 @@ OutputLoad PROC
  call WriteString			; Write the intro message
  call Crlf
  call Crlf
- mov edx, OFFSET ruleIntro	; Write the rule introduction
+ mov eax, (black*16) + lightGreen
+ call SetTextColor
+ mov edx, OFFSET options
+ call WriteString
+ mov eax, (black*16) + white
+ call SetTextColor
+ call Crlf
+ call Crlf
+ mov eax, (black*16) + yellow
+ call SetTextColor
+ mov edx, OFFSET option1
+ call WriteString
+ call Crlf
+ mov edx, OFFSET option2
+ call WriteString
+ call Crlf
+ mov edx, OFFSET option3
+ call WriteString
+ call Crlf
+ mov edx, OFFSET option4
  call WriteString
  call Crlf
  call Crlf
+ mov eax, (black*16) + white
+ call SetTextColor
+ mov edx, OFFSET inputOptionPrompt
+ call WriteString
+ mov edx, OFFSET inputOption
+ mov ecx, (lengthof inputOption)
+ mov eax, (black*16) + lightGreen
+ call SetTextColor
+ call ReadString
+ mov eax, (black*16) + white
+ call SetTextColor
+
+ mov al, [inputOption]
+ cmp al, [opt1]
+ je First
+ cmp al, opt2
+ je Second
+ cmp al, opt3
+ je Third
+ cmp al, opt4
+ je Fourth
+ jne Invalid
+ 
+ First:
+  call ClrScr
+  call DisplayRules
+  call WaitMsg
+  call ClrScr
+  jmp Home
+
+ Second:
+  call ClrScr
+  mov eax, (black*16) + lightGreen
+  call SetTextColor
+  mov edx, OFFSET helpful
+  call WriteString
+  mov eax, (black*16) + yellow
+  call SetTextColor
+  call Crlf
+  call Crlf
+  mov edx, OFFSET helpful1  
+  call WriteString
+  call Crlf
+  mov edx, OFFSET helpful2
+  call WriteString
+  call Crlf
+  mov edx, OFFSET helpful3
+  call WriteString
+  call Crlf
+  call Crlf
+  mov eax, (black*16) + white
+  call SetTextColor
+  call WaitMsg
+  call ClrScr
+  jmp Home
+ 
+ Third:
+  call ClrScr
+  mov eax, (black*16) + lightGreen
+  call SetTextColor
+  mov edx, OFFSET scoring
+  call WriteString
+  mov eax, (black*16) + yellow
+  call SetTextColor
+  call Crlf
+  call Crlf
+  mov edx, OFFSET scoring1
+  call WriteString
+  call Crlf
+  mov edx, OFFSET scoring2
+  call WriteString
+  call Crlf
+  mov edx, OFFSET scoring3
+  call WriteString
+  call Crlf
+  mov edx, OFFSET scoring4
+  call WriteString
+  call Crlf
+  call Crlf
+  mov eax, (black*16) + white
+  call SetTextColor
+  call WaitMsg
+  call ClrScr
+  jmp Home
+
+ Fourth:
+  jmp Escape
+
+ Invalid:
+  mov eax, (black*16) + lightRed
+  call SetTextColor
+  call Crlf
+  mov edx, OFFSET invalidInput
+  call WriteString
+  mov eax, (black*16) + white
+  call SetTextColor
+  call Crlf
+  INVOKE ExitProcess,0
+
+ Home:
+  call DisplayLoad
+    
+ Escape:
+  ret 
+DisplayLoad ENDP
+
 ;--------------------------------------------------------
+;					DisplayRules PROC
 ; Output the various rules of the program to the console
 ; before it prompts the user for input.
 ;--------------------------------------------------------
+DisplayRules PROC
  mov eax, (black*16) + lightGreen
  call SetTextColor
  mov edx, OFFSET green_message
  call WriteString
  call Crlf
+ call Crlf
  mov eax, (black*16) + yellow
  call SetTextColor
  mov edx, OFFSET yellow_message
  call WriteString
+ call Crlf
  call Crlf
  mov eax, (black*16) + lightRed
  call SetTextColor
@@ -241,10 +390,8 @@ OutputLoad PROC
  mov edx, OFFSET rule7		
  call WriteString
  call Crlf
- call Crlf
- call Crlf
  mov dl,29
- mov dh,17
+ mov dh,14
  call GoToXY                ; Change position
  mov eax, (black*16) + lightMagenta
  call SetTextColor
@@ -255,7 +402,7 @@ OutputLoad PROC
  mov eax, (black*16) + white
  call SetTextColor          ; Revert color back
  ret
-OutputLoad ENDP
+DisplayRules ENDP
 
 
 ;--------------------------------------------------------
