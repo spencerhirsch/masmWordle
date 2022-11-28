@@ -59,10 +59,10 @@ opt2 BYTE "2",0
 opt3 BYTE "3",0
 opt4 BYTE "4",0
 options BYTE "Please select an option: ",0
-option1 BYTE "(1.) Rules",0
-option2 BYTE "(2.) Helpful Tips",0
-option3 BYTE "(3.) How Scoring Works",0
-option4 BYTE "(4.) Play Game",0
+option1 BYTE "(1). Rules",0
+option2 BYTE "(2). Helpful Tips",0
+option3 BYTE "(3). How Scoring Works",0
+option4 BYTE "(4). Play Game",0
 inputOptionPrompt BYTE "Type the number of the option you would like: ",0
 helpful BYTE "Here are some helpful tips: ",0
 helpful1 BYTE "1. Use vowels.",0
