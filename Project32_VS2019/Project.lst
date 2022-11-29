@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/27/22 22:01:48
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/28/22 23:02:03
 wordle.asm						     Page 1 - 1
 
 
@@ -200,19 +200,19 @@ wordle.asm						     Page 1 - 1
 	   6E 20 6F 70 74
 	   69 6F 6E 3A 20
 	   00
- 00000283 28 31 2E 29 20	option1 BYTE "(1.) Rules",0
+ 00000283 28 31 29 2E 20	option1 BYTE "(1). Rules",0
 	   52 75 6C 65 73
 	   00
- 0000028E 28 32 2E 29 20	option2 BYTE "(2.) Helpful Tips",0
+ 0000028E 28 32 29 2E 20	option2 BYTE "(2). Helpful Tips",0
 	   48 65 6C 70 66
 	   75 6C 20 54 69
 	   70 73 00
- 000002A0 28 33 2E 29 20	option3 BYTE "(3.) How Scoring Works",0
+ 000002A0 28 33 29 2E 20	option3 BYTE "(3). How Scoring Works",0
 	   48 6F 77 20 53
 	   63 6F 72 69 6E
 	   67 20 57 6F 72
 	   6B 73 00
- 000002B7 28 34 2E 29 20	option4 BYTE "(4.) Play Game",0
+ 000002B7 28 34 29 2E 20	option4 BYTE "(4). Play Game",0
 	   50 6C 61 79 20
 	   47 61 6D 65 00
  000002C6 54 79 70 65 20	inputOptionPrompt BYTE "Type the number of the option you would like: ",0
@@ -374,16 +374,21 @@ wordle.asm						     Page 1 - 1
 	   74 20 77 6F 72
 	   64 20 77 61 73
 	   3A 20 00
-
- 00000581 00000258		points DWORD 600      ; Initial number of potential points
+ 00000581 00000000		foundWord DWORD 0
+ 00000585 00000258		points DWORD 600      ; Initial number of potential points
+ 00000589 59 6F 75 20 63	currentPointsMsg BYTE "You currently have: ",0
+	   75 72 72 65 6E
+	   74 6C 79 20 68
+	   61 76 65 3A 20
+	   00
 
 				;--------------------------------------------------------
 				; Messages displayed to the use once the program begins
 				; taking input during gameplay.
 				;--------------------------------------------------------
- 00000585 49 6E 70 75 74	input_string BYTE "Input: ",0
+ 0000059E 49 6E 70 75 74	input_string BYTE "Input: ",0
 	   3A 20 00
- 0000058D 41 74 74 65 6D	attempt_string BYTE "Attempt: ",0
+ 000005A6 41 74 74 65 6D	attempt_string BYTE "Attempt: ",0
 	   70 74 3A 20 00
 
 				;--------------------------------------------------------
@@ -392,7 +397,7 @@ wordle.asm						     Page 1 - 1
 				; that can be read from the user by setting size to 5 plus 
 				; the null pointer.
 				;--------------------------------------------------------
- 00000597  00000006 [		user_input BYTE 6 DUP(?)
+ 000005B0  00000006 [		user_input BYTE 6 DUP(?)
 	    00
 	   ]
 
@@ -402,10 +407,10 @@ wordle.asm						     Page 1 - 1
 				; is the string that will be used for comparisons from the 
 				; user input
 				;--------------------------------------------------------
- 0000059D  00000006 [		true_string BYTE 6 DUP(?)
+ 000005B6  00000006 [		true_string BYTE 6 DUP(?)
 	    00
 	   ]
- 000005A3 49 6E 70 75 74	prompt_message BYTE "Input expected String (INPUT IS HIDDEN): ",0
+ 000005BC 49 6E 70 75 74	prompt_message BYTE "Input expected String (INPUT IS HIDDEN): ",0
 	   20 65 78 70 65
 	   63 74 65 64 20
 	   53 74 72 69 6E
@@ -414,29 +419,60 @@ wordle.asm						     Page 1 - 1
 	   53 20 48 49 44
 	   44 45 4E 29 3A
 	   20 00
- 000005CD 57 65 6C 63 6F	welcomeMsg BYTE "Welcome ",0
+ 000005E6 57 65 6C 63 6F	welcomeMsg BYTE "Welcome ",0
 	   6D 65 20 00
- 000005D6  0000000A [		user1 BYTE 10 DUP(?)
+ 000005EF  0000000A [		user1 BYTE 10 DUP(?)
 	    00
 	   ]
- 000005E0  0000000A [		user2 BYTE 10 DUP(?)
+ 000005F9  0000000A [		user2 BYTE 10 DUP(?)
 	    00
 	   ]
- 000005EA 50 6C 61 79 65	promptUser1 BYTE "Player 1: ",0
+ 00000603 50 6C 61 79 65	promptUser1 BYTE "Player 1: ",0
 	   72 20 31 3A 20
 	   00
- 000005F5 50 6C 61 79 65	promptUser2 BYTE "Player 2: ",0
+ 0000060E 50 6C 61 79 65	promptUser2 BYTE "Player 2: ",0
 	   72 20 32 3A 20
 	   00
- 00000600 4E 75 6D 62 65	promptNumber BYTE "Number of Rounds (1-5): ",0
+ 00000619 4E 75 6D 62 65	promptNumber BYTE "Number of Rounds (1-5): ",0
 	   72 20 6F 66 20
 	   52 6F 75 6E 64
 	   73 20 28 31 2D
 	   35 29 3A 20 00
- 00000619 000000000000		pointsUser1 FWORD ?
- 0000061F 000000000000		pointsUser2 FWORD ?
- 00000625 00000000		numberOfRounds DWORD ?
- 00000629 01			index BYTE 1        ; Used for number of attempts
+ 00000632 00000000		pointsUser1 DWORD 0
+ 00000636 00000000		pointsUser2 DWORD 0
+ 0000063A 00000000		numberOfRounds DWORD ?
+ 0000063E 01			index BYTE 1        ; Used for number of attempts
+ 0000063F 00000001		currentRound DWORD 1
+ 00000643 43 68 6F 6F 73	inform BYTE "Choose a word ",0
+	   65 20 61 20 77
+	   6F 72 64 20 00
+ 00000652 59 6F 75 27 72	startPlay BYTE "You're good to start guessing ",0
+	   65 20 67 6F 6F
+	   64 20 74 6F 20
+	   73 74 61 72 74
+	   20 67 75 65 73
+	   73 69 6E 67 20
+	   00
+ 00000671 21 00			exclaim BYTE "!",0
+ 00000673  0000000A [		currentPlayer BYTE 10 DUP(?)
+	    00
+	   ]
+ 0000067D 69 74 27 73 20	tieMsg BYTE "it's a tie!",0
+	   61 20 74 69 65
+	   21 00
+ 00000689 50 6C 61 79 65	player BYTE "Player", 0
+	   72 00
+
+				;--------------------------------------------------------
+				; Values used for the outputted screen of the scores
+				;--------------------------------------------------------
+ 00000690 43 6F 6E 67 72	winnerMsg BYTE "Congratulations, ",0
+	   61 74 75 6C 61
+	   74 69 6F 6E 73
+	   2C 20 00
+ 000006A2  00000032 [		divider BYTE 50 DUP ("=")
+	    3D
+	   ]
 
  00000000			.code
 				;--------------------------------------------------------
@@ -448,67 +484,137 @@ wordle.asm						     Page 1 - 1
 				;--------------------------------------------------------
  00000000			main PROC
 				 ; Call the procedures
- 00000000  E8 000001CD		 call DisplayLoad
+ 00000000  E8 00000362		 call DisplayLoad
  00000005  E8 00000000 E	 call ClrScr
- 0000000A  BA 000005EA R	 mov edx, OFFSET promptUser1
+ 0000000A  BA 00000603 R	 mov edx, OFFSET promptUser1
  0000000F  E8 00000000 E	 call WriteString
- 00000014  BA 000005D6 R	 mov edx, OFFSET user1
+ 00000014  BA 000005EF R	 mov edx, OFFSET user1
  00000019  B9 0000000A		 mov ecx, (LENGTHOF user1)
  0000001E  E8 00000000 E	 call ReadString
- 00000023  BA 000005CD R	 mov edx, OFFSET welcomeMsg
+ 00000023  BA 000005E6 R	 mov edx, OFFSET welcomeMsg
  00000028  E8 00000000 E	 call WriteString
- 0000002D  BA 000005D6 R	 mov edx, OFFSET user1
+ 0000002D  BA 000005EF R	 mov edx, OFFSET user1
  00000032  E8 00000000 E	 call WriteString
  00000037  E8 00000000 E	 call Crlf
  0000003C  E8 00000000 E	 call Crlf
- 00000041  BA 000005F5 R	 mov edx, OFFSET promptUser2
+ 00000041  BA 0000060E R	 mov edx, OFFSET promptUser2
  00000046  E8 00000000 E	 call WriteString
- 0000004B  BA 000005E0 R	 mov edx, OFFSET user2
+ 0000004B  BA 000005F9 R	 mov edx, OFFSET user2
  00000050  B9 0000000A		 mov ecx, (LENGTHOF user2)
  00000055  E8 00000000 E	 call ReadString
- 0000005A  BA 000005CD R	 mov edx, OFFSET welcomeMsg
+ 0000005A  BA 000005E6 R	 mov edx, OFFSET welcomeMsg
  0000005F  E8 00000000 E	 call WriteString
- 00000064  BA 000005E0 R	 mov edx, OFFSET user2
+ 00000064  BA 000005F9 R	 mov edx, OFFSET user2
  00000069  E8 00000000 E	 call WriteString
  0000006E  E8 00000000 E	 call Crlf
  00000073  E8 00000000 E	 call Crlf
- 00000078  BA 00000600 R	 mov edx, OFFSET promptNumber
+ 00000078  BA 00000619 R	 mov edx, OFFSET promptNumber
  0000007D  E8 00000000 E	 call WriteString
- 00000082  BA 00000625 R	 mov edx, OFFSET numberOfRounds
- 00000087  B9 00000001		 mov ecx, (LENGTHOF numberOfRounds)
- 0000008C  E8 00000000 E	 call ReadInt
- 00000091  B8 00000000		 mov eax, 0
- 00000096  3B 05 00000625 R	 cmp eax, [numberOfRounds] 
- 0000009C  76 02		 jbe NotValid
- 0000009E  77 2F		 ja Good
-				 
+ 00000082  E8 00000000 E	 call ReadInt
+ 00000087  A3 0000063A R	 mov numberOfRounds, eax
+ 0000008C  B8 00000000		 mov eax, 0
+ 00000091  83 3D 0000063A R	 cmp numberOfRounds, 0
+	   00
+ 00000098  77 31		 ja Good
+ 0000009A  76 00		 jbe NotValid 
 
- 000000A0			 NotValid:
- 000000A0  E8 00000000 E	  call Crlf
- 000000A5  B8 0000000C		  mov eax, (black*16) + lightRed
- 000000AA  E8 00000000 E	  call SetTextColor
- 000000AF  BA 0000053F R	  mov edx, OFFSET not_valid
- 000000B4  E8 00000000 E	  call WriteString
- 000000B9  B8 0000000F		  mov eax, (black*16) + white
- 000000BE  E8 00000000 E	  call SetTextColor
- 000000C3  E8 00000000 E	  call Crlf
+ 0000009C			 NotValid:
+ 0000009C  E8 00000000 E	  call Crlf
+ 000000A1  B8 0000000C		  mov eax, (black*16) + lightRed
+ 000000A6  E8 00000000 E	  call SetTextColor
+ 000000AB  BA 0000053F R	  mov edx, OFFSET not_valid
+ 000000B0  E8 00000000 E	  call WriteString
+ 000000B5  B8 0000000F		  mov eax, (black*16) + white
+ 000000BA  E8 00000000 E	  call SetTextColor
+ 000000BF  E8 00000000 E	  call Crlf
 				  INVOKE ExitProcess,0
- 000000C8  6A 00	   *	    push   +000000000h
- 000000CA  E8 00000000 E   *	    call   ExitProcess
+ 000000C4  6A 00	   *	    push   +000000000h
+ 000000C6  E8 00000000 E   *	    call   ExitProcess
 				 
- 000000CF			 Good:
- 000000CF  B8 00000005		  mov eax, 5
- 000000D4  3B 05 00000625 R	  cmp eax, [numberOfRounds]
- 000000DA  77 C4		  ja NotValid
+ 000000CB			 Good:
+ 000000CB  83 3D 0000063A R	  cmp numberOfRounds, 5
+	   05
+ 000000D2  77 C8		  ja NotValid
 				 
+ 000000D4  A1 0000063A R	 mov eax, numberOfRounds 
+ 000000D9  B9 00000002		 mov ecx, 2
+ 000000DE  F7 E1		 mul ecx
+ 000000E0  A3 0000063A R	 mov numberOfRounds, eax
 				 
- 000000DC  E8 00000440		 call CollectString             ; Take string from user
- 000000E1  E8 00000000 E	 call WaitMsg                
- 000000E6  E8 00000000 E	 call Crlf
- 000000EB  E8 00000000 E	 call Crlf 
+ 000000E5			 Control: ; Loop used to control the number of rounds of the game
+ 000000E5  C7 05 00000581 R	 mov foundWord, 0
+	   00000000
+ 000000EF  C6 05 0000063E R	 mov index, 1
+	   01
+ 000000F6  C7 05 00000585 R	 mov points, 600 
+	   00000258
+ 00000100  BA 00000000		 mov edx, 0
+ 00000105  A1 0000063F R	 mov eax, currentRound
+ 0000010A  B9 00000002		 mov ecx, 2
+ 0000010F  F7 F1		 div ecx
+ 00000111  83 FA 00		 cmp edx, 0
+ 00000114  74 03		 je PlayerOne
+ 00000116  75 30		 jne PlayerTwo
+ 00000118  52			 push edx
+ 00000119			 PlayerOne:
+ 00000119  B8 0000000A		  mov eax, (black*16) + lightGreen
+ 0000011E  E8 00000000 E	  call SetTextColor
+ 00000123  BA 00000643 R	  mov edx, OFFSET inform
+ 00000128  E8 00000000 E	  call WriteString
+ 0000012D  BA 000005F9 R	  mov edx, OFFSET user2
+ 00000132  E8 00000000 E	  call WriteString
+ 00000137  BA 00000671 R	  mov edx, OFFSET exclaim
+ 0000013C  E8 00000000 E	  call WriteString
+ 00000141  E8 00000000 E	  call Crlf
+ 00000146  EB 2D		  jmp Cont
 
- 000000F0  A0 00000629 R	 mov al, index                  ; Initialize number of attempts
- 000000F5  BF 00000006		 mov edi,6                      ; Loop decrement varialbe
+ 00000148			 PlayerTwo:
+ 00000148  B8 0000000A		  mov eax, (black*16) + lightGreen
+ 0000014D  E8 00000000 E	  call SetTextColor
+ 00000152  BA 00000643 R	  mov edx, OFFSET inform
+ 00000157  E8 00000000 E	  call WriteString
+ 0000015C  BA 000005EF R	  mov edx, OFFSET user1
+ 00000161  E8 00000000 E	  call WriteString
+ 00000166  BA 00000671 R	  mov edx, OFFSET exclaim
+ 0000016B  E8 00000000 E	  call WriteString
+ 00000170  E8 00000000 E	  call Crlf
+
+ 00000175			 Cont:
+ 00000175  B8 0000000F		  mov eax, (black*16) + white
+ 0000017A  E8 00000000 E	  call SetTextColor
+				 
+ 0000017F  E8 000007A6		 call CollectString             ; Take string from user
+ 00000184  E8 00000000 E	 call WaitMsg
+ 00000189  E8 00000000 E	 call Crlf
+ 0000018E  E8 00000000 E	 call Crlf
+ 00000193  B8 0000000A		 mov eax, (black*16) + lightGreen
+ 00000198  E8 00000000 E	 call SetTextColor
+ 0000019D  BA 00000652 R	 mov edx, OFFSET startPlay
+ 000001A2  E8 00000000 E	 call WriteString
+				 ;pop edx
+ 000001A7  BA 00000000		 mov edx, 0
+ 000001AC  A1 0000063F R	 mov eax, currentRound
+ 000001B1  B9 00000002		 mov ecx, 2
+ 000001B6  F7 F1		 div ecx
+ 000001B8  83 FA 01		 cmp edx, 1
+ 000001BB  74 09		 je Two
+ 000001BD  75 00		 jne One
+
+ 000001BF			 One:
+ 000001BF  BA 000005EF R	  mov edx, OFFSET user1
+ 000001C4  EB 05		  jmp PassTwo
+ 000001C6			 Two:
+ 000001C6  BA 000005F9 R	  mov edx, OFFSET user2
+ 000001CB			 PassTwo:
+ 000001CB  E8 00000000 E	  call WriteString
+ 000001D0  BA 00000671 R	 mov edx, OFFSET exclaim
+ 000001D5  E8 00000000 E	 call WriteString
+ 000001DA  E8 00000000 E	 call Crlf                
+ 000001DF  E8 00000000 E	 call Crlf 
+ 000001E4  B8 0000000F		 mov eax, (black*16) + white
+ 000001E9  E8 00000000 E	 call SetTextColor
+ 000001EE  A0 0000063E R	 mov al, index                  ; Initialize number of attempts
+ 000001F3  BF 00000006		 mov edi,6                      ; Loop decrement varialbe
 
 				;--------------------------------------------------------
 				; Driver loop that takes care of the number of attempts
@@ -516,267 +622,467 @@ wordle.asm						     Page 1 - 1
 				; has earned as well as the number of attempts the user
 				; has taken.
 				;--------------------------------------------------------
- 000000FA			 L1:
- 000000FA  BA 0000058D R	  mov edx, OFFSET attempt_string
- 000000FF  E8 00000000 E	  call WriteString          
- 00000104  E8 00000000 E	  call WriteInt             ; Write the number of attempts
+ 000001F8			 L1:
+ 000001F8  BA 000005A6 R	  mov edx, OFFSET attempt_string
+ 000001FD  E8 00000000 E	  call WriteString          
+ 00000202  E8 00000000 E	  call WriteInt             ; Write the number of attempts
 				                            ; to console
- 00000109  E8 00000000 E	  call Crlf
- 0000010E  57			  push edi                  ; Save values to stack
- 0000010F  50			  push eax
- 00000110  E8 000004A7		  call ProcessInput         ; Take input from user and process
+ 00000207  E8 00000000 E	  call Crlf
+ 0000020C  57			  push edi                  ; Save values to stack
+ 0000020D  50			  push eax
+ 0000020E  E8 000007B2		  call ProcessInput         ; Take input from user and process
 				                            ; it accordingly
+ 00000213  83 3D 00000581 R	  cmp foundWord, 1
+	   01
+ 0000021A  0F 84 000000A7	  je Break
 
- 00000115  A1 00000581 R	  mov eax, points           ; Do point calculations based on
- 0000011A  83 E8 64		  sub eax, 100              ; number of attempts
- 0000011D  A3 00000581 R	  mov points, eax
- 00000122  BA 0000052C R	  mov edx, OFFSET current_points
- 00000127  E8 00000000 E	  call WriteString          
- 0000012C  A1 00000581 R	  mov eax, points
- 00000131  E8 00000000 E	  call WriteInt             ; Print number of points to console
- 00000136  BA 00000517 R	  mov edx, OFFSET points_message
- 0000013B  E8 00000000 E	  call WriteString
- 00000140  E8 00000000 E	  call Crlf
- 00000145  E8 00000000 E	  call Crlf
- 0000014A  58			  pop eax		            ; Remove value from the stack
- 0000014B  FE C0		  inc al
- 0000014D  A2 00000629 R	  mov index, al             ; Load the current index into variable
- 00000152  5F			  pop edi                   ; Remove value from the stack
- 00000153  4F			  dec edi                   ; Decrement loop counter
- 00000154  75 A4		  jnz L1
+ 00000220  A1 00000585 R	  mov eax, points           ; Do point calculations based on
+ 00000225  83 E8 64		  sub eax, 100              ; number of attempts
+ 00000228  A3 00000585 R	  mov points, eax
+ 0000022D  BA 0000052C R	  mov edx, OFFSET current_points
+ 00000232  E8 00000000 E	  call WriteString          
+ 00000237  A1 00000585 R	  mov eax, points
+ 0000023C  E8 00000000 E	  call WriteInt             ; Print number of points to console
+ 00000241  BA 00000517 R	  mov edx, OFFSET points_message
+ 00000246  E8 00000000 E	  call WriteString
+ 0000024B  E8 00000000 E	  call Crlf
+ 00000250  E8 00000000 E	  call Crlf
+ 00000255  58			  pop eax		            ; Remove value from the stack
+ 00000256  FE C0		  inc al
+ 00000258  A2 0000063E R	  mov index, al             ; Load the current index into variable
+ 0000025D  5F			  pop edi                   ; Remove value from the stack
+ 0000025E  4F			  dec edi                   ; Decrement loop counter
+ 0000025F  75 97		  jnz L1
 
- 00000156  B8 0000000C		mov eax, (black*16) + lightRed
- 0000015B  E8 00000000 E	call SetTextColor           
- 00000160  BA 0000049E R	mov edx, OFFSET fail
- 00000165  E8 00000000 E	call WriteString            ; Write faile message
- 0000016A  E8 00000000 E	call Crlf
- 0000016F  BA 0000050A R	mov edx, OFFSET score_message
- 00000174  E8 00000000 E	call WriteString            
- 00000179  B0 00		mov al, 0
- 0000017B  E8 00000000 E	call WriteInt
- 00000180  BA 00000517 R	mov edx, OFFSET points_message
- 00000185  E8 00000000 E	call WriteString            ; Write number of points
+ 00000261  B8 0000000C		mov eax, (black*16) + lightRed
+ 00000266  E8 00000000 E	call SetTextColor           
+ 0000026B  BA 0000049E R	mov edx, OFFSET fail
+ 00000270  E8 00000000 E	call WriteString            ; Write faile message
+ 00000275  E8 00000000 E	call Crlf
+ 0000027A  BA 0000050A R	mov edx, OFFSET score_message
+ 0000027F  E8 00000000 E	call WriteString            
+ 00000284  B0 00		mov al, 0
+ 00000286  E8 00000000 E	call WriteInt
+ 0000028B  BA 00000517 R	mov edx, OFFSET points_message
+ 00000290  E8 00000000 E	call WriteString            ; Write number of points
 				                            ; to the console
- 0000018A  E8 00000000 E	call Crlf
- 0000018F  E8 00000000 E	call Crlf
- 00000194  B8 0000000F		mov eax, (black*16) + white
- 00000199  E8 00000000 E	call SetTextColor
- 0000019E  BA 0000056A R	mov edx, OFFSET correct_word
- 000001A3  E8 00000000 E	call WriteString
- 000001A8  B8 0000000A		mov eax, (black*16) + lightGreen
- 000001AD  E8 00000000 E	call SetTextColor
- 000001B2  BA 0000059D R	mov edx, OFFSET true_string
- 000001B7  E8 00000000 E	call WriteString
- 000001BC  B8 0000001F		mov eax, (black+16) + white
- 000001C1  E8 00000000 E	call SetTextColor
- 000001C6  E8 00000000 E	call Crlf
+ 00000295  E8 00000000 E	call Crlf
+ 0000029A  E8 00000000 E	call Crlf
+ 0000029F  B8 0000000F		mov eax, (black*16) + white
+ 000002A4  E8 00000000 E	call SetTextColor
+ 000002A9  BA 0000056A R	mov edx, OFFSET correct_word
+ 000002AE  E8 00000000 E	call WriteString
+ 000002B3  B8 0000000A		mov eax, (black*16) + lightGreen
+ 000002B8  E8 00000000 E	call SetTextColor
+ 000002BD  BA 000005B6 R	mov edx, OFFSET true_string
+ 000002C2  E8 00000000 E	call WriteString
+ 000002C7			Break:
+ 000002C7  B8 0000000F		mov eax, (black*16) + white
+ 000002CC  E8 00000000 E	call SetTextColor
+ 000002D1  E8 00000000 E	call Crlf
+ 000002D6  BA 00000589 R	mov edx, OFFSET currentPointsMsg
+ 000002DB  E8 00000000 E	call WriteString
+ 000002E0  BA 00000000		mov edx, 0
+ 000002E5  A1 0000063F R	mov eax, currentRound
+ 000002EA  B9 00000002		mov ecx, 2
+ 000002EF  F7 F1		div ecx
+ 000002F1  83 FA 01		cmp edx, 1
+ 000002F4  74 02		je CurrentPointsOne
+ 000002F6  75 17		jne CurrentPointsTwo
+
+ 000002F8			CurrentPointsOne:
+ 000002F8  A1 00000585 R	 mov eax, points
+ 000002FD  01 05 00000632 R	 add pointsUser1, eax
+				 ;mov pointsUser1, eax
+ 00000303  A1 00000632 R	 mov eax, pointsUser1
+ 00000308  E8 00000000 E	 call WriteInt
+ 0000030D  EB 15		 jmp Skip
+
+ 0000030F			CurrentPointsTwo:
+ 0000030F  A1 00000585 R	 mov eax, points
+ 00000314  01 05 00000636 R	 add pointsUser2, eax
+ 0000031A  A1 00000636 R	 mov eax, pointsUser2
+ 0000031F  E8 00000000 E	 call WriteInt
+
+ 00000324			Skip:
+ 00000324  BA 00000517 R	mov edx, OFFSET points_message
+ 00000329  E8 00000000 E	call WriteString
+ 0000032E  E8 00000000 E	call Crlf
+ 00000333  E8 00000000 E	call Crlf
+ 00000338  E8 00000000 E	call WaitMsg
+ 0000033D  E8 00000000 E	call Crlf
+ 00000342  A1 0000063F R	mov eax, currentRound
+ 00000347  83 C0 01		add eax, 1
+ 0000034A  A3 0000063F R	mov currentRound, eax
+ 0000034F  3B 05 0000063A R	cmp eax, numberOfRounds
+ 00000355  0F 86 FFFFFD8A	jbe Control 
+				;call Crlf
+ 0000035B  E8 00000257		call ScoreScreen
 				INVOKE ExitProcess,0       ; Once done, exit the program
- 000001CB  6A 00	   *	    push   +000000000h
- 000001CD  E8 00000000 E   *	    call   ExitProcess
- 000001D2			main ENDP
+ 00000360  6A 00	   *	    push   +000000000h
+ 00000362  E8 00000000 E   *	    call   ExitProcess
+ 00000367			main ENDP
 
- 000001D2			DisplayLoad PROC
- 000001D2  B8 0000000D		 mov eax, (black*16) + lightMagenta
- 000001D7  E8 00000000 E	 call SetTextColor
- 000001DC  B2 19		 mov dl,25					; Change the position of the 
+ 00000367			DisplayLoad PROC
+ 00000367  B8 0000000D		 mov eax, (black*16) + lightMagenta
+ 0000036C  E8 00000000 E	 call SetTextColor
+ 00000371  B2 19		 mov dl,25					; Change the position of the 
 				                            ; text written to the console
- 000001DE  B6 00		 mov dh,0
- 000001E0  E8 00000000 E	 call GotoXY		
- 000001E5  BA 00000000 R	 mov edx, OFFSET intro
- 000001EA  E8 00000000 E	 call WriteString			; Write the intro message
- 000001EF  E8 00000000 E	 call Crlf
- 000001F4  E8 00000000 E	 call Crlf
- 000001F9  B8 0000000A		 mov eax, (black*16) + lightGreen
- 000001FE  E8 00000000 E	 call SetTextColor
- 00000203  BA 00000269 R	 mov edx, OFFSET options
- 00000208  E8 00000000 E	 call WriteString
- 0000020D  B8 0000000F		 mov eax, (black*16) + white
- 00000212  E8 00000000 E	 call SetTextColor
- 00000217  E8 00000000 E	 call Crlf
- 0000021C  E8 00000000 E	 call Crlf
- 00000221  B8 0000000E		 mov eax, (black*16) + yellow
- 00000226  E8 00000000 E	 call SetTextColor
- 0000022B  BA 00000283 R	 mov edx, OFFSET option1
- 00000230  E8 00000000 E	 call WriteString
- 00000235  E8 00000000 E	 call Crlf
- 0000023A  BA 0000028E R	 mov edx, OFFSET option2
- 0000023F  E8 00000000 E	 call WriteString
- 00000244  E8 00000000 E	 call Crlf
- 00000249  BA 000002A0 R	 mov edx, OFFSET option3
- 0000024E  E8 00000000 E	 call WriteString
- 00000253  E8 00000000 E	 call Crlf
- 00000258  BA 000002B7 R	 mov edx, OFFSET option4
- 0000025D  E8 00000000 E	 call WriteString
- 00000262  E8 00000000 E	 call Crlf
- 00000267  E8 00000000 E	 call Crlf
- 0000026C  B8 0000000F		 mov eax, (black*16) + white
- 00000271  E8 00000000 E	 call SetTextColor
- 00000276  BA 000002C6 R	 mov edx, OFFSET inputOptionPrompt
- 0000027B  E8 00000000 E	 call WriteString
- 00000280  BA 00000491 R	 mov edx, OFFSET inputOption
- 00000285  B9 00000002		 mov ecx, (lengthof inputOption)
- 0000028A  B8 0000000A		 mov eax, (black*16) + lightGreen
- 0000028F  E8 00000000 E	 call SetTextColor
- 00000294  E8 00000000 E	 call ReadString
- 00000299  B8 0000000F		 mov eax, (black*16) + white
- 0000029E  E8 00000000 E	 call SetTextColor
+ 00000373  B6 00		 mov dh,0
+ 00000375  E8 00000000 E	 call GotoXY		
+ 0000037A  BA 00000000 R	 mov edx, OFFSET intro
+ 0000037F  E8 00000000 E	 call WriteString			; Write the intro message
+ 00000384  E8 00000000 E	 call Crlf
+ 00000389  E8 00000000 E	 call Crlf
+ 0000038E  B8 0000000A		 mov eax, (black*16) + lightGreen
+ 00000393  E8 00000000 E	 call SetTextColor
+ 00000398  BA 00000269 R	 mov edx, OFFSET options
+ 0000039D  E8 00000000 E	 call WriteString
+ 000003A2  B8 0000000F		 mov eax, (black*16) + white
+ 000003A7  E8 00000000 E	 call SetTextColor
+ 000003AC  E8 00000000 E	 call Crlf
+ 000003B1  E8 00000000 E	 call Crlf
+ 000003B6  B8 0000000E		 mov eax, (black*16) + yellow
+ 000003BB  E8 00000000 E	 call SetTextColor
+ 000003C0  BA 00000283 R	 mov edx, OFFSET option1
+ 000003C5  E8 00000000 E	 call WriteString
+ 000003CA  E8 00000000 E	 call Crlf
+ 000003CF  BA 0000028E R	 mov edx, OFFSET option2
+ 000003D4  E8 00000000 E	 call WriteString
+ 000003D9  E8 00000000 E	 call Crlf
+ 000003DE  BA 000002A0 R	 mov edx, OFFSET option3
+ 000003E3  E8 00000000 E	 call WriteString
+ 000003E8  E8 00000000 E	 call Crlf
+ 000003ED  BA 000002B7 R	 mov edx, OFFSET option4
+ 000003F2  E8 00000000 E	 call WriteString
+ 000003F7  E8 00000000 E	 call Crlf
+ 000003FC  E8 00000000 E	 call Crlf
+ 00000401  B8 0000000F		 mov eax, (black*16) + white
+ 00000406  E8 00000000 E	 call SetTextColor
+ 0000040B  BA 000002C6 R	 mov edx, OFFSET inputOptionPrompt
+ 00000410  E8 00000000 E	 call WriteString
+ 00000415  BA 00000491 R	 mov edx, OFFSET inputOption
+ 0000041A  B9 00000002		 mov ecx, (lengthof inputOption)
+ 0000041F  B8 0000000A		 mov eax, (black*16) + lightGreen
+ 00000424  E8 00000000 E	 call SetTextColor
+ 00000429  E8 00000000 E	 call ReadString
+ 0000042E  B8 0000000F		 mov eax, (black*16) + white
+ 00000433  E8 00000000 E	 call SetTextColor
 
- 000002A3  A0 00000491 R	 mov al, [inputOption]
- 000002A8  3A 05 00000261 R	 cmp al, [opt1]
- 000002AE  74 26		 je First
- 000002B0  3A 05 00000263 R	 cmp al, opt2
- 000002B6  74 37		 je Second
- 000002B8  3A 05 00000265 R	 cmp al, opt3
- 000002BE  0F 84 000000A3	 je Third
- 000002C4  3A 05 00000267 R	 cmp al, opt4
- 000002CA  0F 84 0000011B	 je Fourth
- 000002D0  0F 85 00000117	 jne Invalid
+ 00000438  A0 00000491 R	 mov al, [inputOption]
+ 0000043D  3A 05 00000261 R	 cmp al, [opt1]
+ 00000443  74 26		 je First
+ 00000445  3A 05 00000263 R	 cmp al, opt2
+ 0000044B  74 37		 je Second
+ 0000044D  3A 05 00000265 R	 cmp al, opt3
+ 00000453  0F 84 000000A3	 je Third
+ 00000459  3A 05 00000267 R	 cmp al, opt4
+ 0000045F  0F 84 0000011B	 je Fourth
+ 00000465  0F 85 00000117	 jne Invalid
 				 
- 000002D6			 First:
- 000002D6  E8 00000000 E	  call ClrScr
- 000002DB  E8 00000142		  call DisplayRules
- 000002E0  E8 00000000 E	  call WaitMsg
- 000002E5  E8 00000000 E	  call ClrScr
- 000002EA  E9 0000012D		  jmp Home
+ 0000046B			 First:
+ 0000046B  E8 00000000 E	  call ClrScr
+ 00000470  E8 000003B6		  call DisplayRules
+ 00000475  E8 00000000 E	  call WaitMsg
+ 0000047A  E8 00000000 E	  call ClrScr
+ 0000047F  E9 0000012D		  jmp Home
 
- 000002EF			 Second:
- 000002EF  E8 00000000 E	  call ClrScr
- 000002F4  B8 0000000A		  mov eax, (black*16) + lightGreen
- 000002F9  E8 00000000 E	  call SetTextColor
- 000002FE  BA 000002F5 R	  mov edx, OFFSET helpful
- 00000303  E8 00000000 E	  call WriteString
- 00000308  B8 0000000E		  mov eax, (black*16) + yellow
- 0000030D  E8 00000000 E	  call SetTextColor
- 00000312  E8 00000000 E	  call Crlf
- 00000317  E8 00000000 E	  call Crlf
- 0000031C  BA 00000312 R	  mov edx, OFFSET helpful1  
- 00000321  E8 00000000 E	  call WriteString
- 00000326  E8 00000000 E	  call Crlf
- 0000032B  BA 00000321 R	  mov edx, OFFSET helpful2
- 00000330  E8 00000000 E	  call WriteString
- 00000335  E8 00000000 E	  call Crlf
- 0000033A  BA 00000337 R	  mov edx, OFFSET helpful3
- 0000033F  E8 00000000 E	  call WriteString
- 00000344  E8 00000000 E	  call Crlf
- 00000349  E8 00000000 E	  call Crlf
- 0000034E  B8 0000000F		  mov eax, (black*16) + white
- 00000353  E8 00000000 E	  call SetTextColor
- 00000358  E8 00000000 E	  call WaitMsg
- 0000035D  E8 00000000 E	  call ClrScr
- 00000362  E9 000000B5		  jmp Home
+ 00000484			 Second:
+ 00000484  E8 00000000 E	  call ClrScr
+ 00000489  B8 0000000A		  mov eax, (black*16) + lightGreen
+ 0000048E  E8 00000000 E	  call SetTextColor
+ 00000493  BA 000002F5 R	  mov edx, OFFSET helpful
+ 00000498  E8 00000000 E	  call WriteString
+ 0000049D  B8 0000000E		  mov eax, (black*16) + yellow
+ 000004A2  E8 00000000 E	  call SetTextColor
+ 000004A7  E8 00000000 E	  call Crlf
+ 000004AC  E8 00000000 E	  call Crlf
+ 000004B1  BA 00000312 R	  mov edx, OFFSET helpful1  
+ 000004B6  E8 00000000 E	  call WriteString
+ 000004BB  E8 00000000 E	  call Crlf
+ 000004C0  BA 00000321 R	  mov edx, OFFSET helpful2
+ 000004C5  E8 00000000 E	  call WriteString
+ 000004CA  E8 00000000 E	  call Crlf
+ 000004CF  BA 00000337 R	  mov edx, OFFSET helpful3
+ 000004D4  E8 00000000 E	  call WriteString
+ 000004D9  E8 00000000 E	  call Crlf
+ 000004DE  E8 00000000 E	  call Crlf
+ 000004E3  B8 0000000F		  mov eax, (black*16) + white
+ 000004E8  E8 00000000 E	  call SetTextColor
+ 000004ED  E8 00000000 E	  call WaitMsg
+ 000004F2  E8 00000000 E	  call ClrScr
+ 000004F7  E9 000000B5		  jmp Home
 				 
- 00000367			 Third:
- 00000367  E8 00000000 E	  call ClrScr
- 0000036C  B8 0000000A		  mov eax, (black*16) + lightGreen
- 00000371  E8 00000000 E	  call SetTextColor
- 00000376  BA 0000035D R	  mov edx, OFFSET scoring
- 0000037B  E8 00000000 E	  call WriteString
- 00000380  B8 0000000E		  mov eax, (black*16) + yellow
- 00000385  E8 00000000 E	  call SetTextColor
- 0000038A  E8 00000000 E	  call Crlf
- 0000038F  E8 00000000 E	  call Crlf
- 00000394  BA 0000037C R	  mov edx, OFFSET scoring1
- 00000399  E8 00000000 E	  call WriteString
- 0000039E  E8 00000000 E	  call Crlf
- 000003A3  BA 000003AF R	  mov edx, OFFSET scoring2
- 000003A8  E8 00000000 E	  call WriteString
- 000003AD  E8 00000000 E	  call Crlf
- 000003B2  BA 000003E6 R	  mov edx, OFFSET scoring3
- 000003B7  E8 00000000 E	  call WriteString
- 000003BC  E8 00000000 E	  call Crlf
- 000003C1  BA 0000041C R	  mov edx, OFFSET scoring4
- 000003C6  E8 00000000 E	  call WriteString
- 000003CB  E8 00000000 E	  call Crlf
- 000003D0  E8 00000000 E	  call Crlf
- 000003D5  B8 0000000F		  mov eax, (black*16) + white
- 000003DA  E8 00000000 E	  call SetTextColor
- 000003DF  E8 00000000 E	  call WaitMsg
- 000003E4  E8 00000000 E	  call ClrScr
- 000003E9  EB 31		  jmp Home
+ 000004FC			 Third:
+ 000004FC  E8 00000000 E	  call ClrScr
+ 00000501  B8 0000000A		  mov eax, (black*16) + lightGreen
+ 00000506  E8 00000000 E	  call SetTextColor
+ 0000050B  BA 0000035D R	  mov edx, OFFSET scoring
+ 00000510  E8 00000000 E	  call WriteString
+ 00000515  B8 0000000E		  mov eax, (black*16) + yellow
+ 0000051A  E8 00000000 E	  call SetTextColor
+ 0000051F  E8 00000000 E	  call Crlf
+ 00000524  E8 00000000 E	  call Crlf
+ 00000529  BA 0000037C R	  mov edx, OFFSET scoring1
+ 0000052E  E8 00000000 E	  call WriteString
+ 00000533  E8 00000000 E	  call Crlf
+ 00000538  BA 000003AF R	  mov edx, OFFSET scoring2
+ 0000053D  E8 00000000 E	  call WriteString
+ 00000542  E8 00000000 E	  call Crlf
+ 00000547  BA 000003E6 R	  mov edx, OFFSET scoring3
+ 0000054C  E8 00000000 E	  call WriteString
+ 00000551  E8 00000000 E	  call Crlf
+ 00000556  BA 0000041C R	  mov edx, OFFSET scoring4
+ 0000055B  E8 00000000 E	  call WriteString
+ 00000560  E8 00000000 E	  call Crlf
+ 00000565  E8 00000000 E	  call Crlf
+ 0000056A  B8 0000000F		  mov eax, (black*16) + white
+ 0000056F  E8 00000000 E	  call SetTextColor
+ 00000574  E8 00000000 E	  call WaitMsg
+ 00000579  E8 00000000 E	  call ClrScr
+ 0000057E  EB 31		  jmp Home
 
- 000003EB			 Fourth:
- 000003EB  EB 34		  jmp Escape
+ 00000580			 Fourth:
+ 00000580  EB 34		  jmp Escape
 
- 000003ED			 Invalid:
- 000003ED  B8 0000000C		  mov eax, (black*16) + lightRed
- 000003F2  E8 00000000 E	  call SetTextColor
- 000003F7  E8 00000000 E	  call Crlf
- 000003FC  BA 00000445 R	  mov edx, OFFSET invalidInput
- 00000401  E8 00000000 E	  call WriteString
- 00000406  B8 0000000F		  mov eax, (black*16) + white
- 0000040B  E8 00000000 E	  call SetTextColor
- 00000410  E8 00000000 E	  call Crlf
+ 00000582			 Invalid:
+ 00000582  B8 0000000C		  mov eax, (black*16) + lightRed
+ 00000587  E8 00000000 E	  call SetTextColor
+ 0000058C  E8 00000000 E	  call Crlf
+ 00000591  BA 00000445 R	  mov edx, OFFSET invalidInput
+ 00000596  E8 00000000 E	  call WriteString
+ 0000059B  B8 0000000F		  mov eax, (black*16) + white
+ 000005A0  E8 00000000 E	  call SetTextColor
+ 000005A5  E8 00000000 E	  call Crlf
 				  INVOKE ExitProcess,0
- 00000415  6A 00	   *	    push   +000000000h
- 00000417  E8 00000000 E   *	    call   ExitProcess
+ 000005AA  6A 00	   *	    push   +000000000h
+ 000005AC  E8 00000000 E   *	    call   ExitProcess
 
- 0000041C			 Home:
- 0000041C  E8 FFFFFDB1		  call DisplayLoad
+ 000005B1			 Home:
+ 000005B1  E8 FFFFFDB1		  call DisplayLoad
 				    
- 00000421			 Escape:
- 00000421  C3			  ret 
- 00000422			DisplayLoad ENDP
+ 000005B6			 Escape:
+ 000005B6  C3			  ret 
+ 000005B7			DisplayLoad ENDP
+
+ 000005B7			ScoreScreen PROC
+ 000005B7  E8 00000000 E	 call ClrScr 
+ 000005BC  BA 00000690 R	 mov edx, OFFSET winnerMsg
+ 000005C1  E8 00000000 E	 call WriteString
+ 000005C6  A1 00000632 R	 mov eax, pointsUser1
+ 000005CB  3B 05 00000636 R	 cmp eax, pointsUser2
+ 000005D1  74 0C		 je Tie
+ 000005D3  0F 82 00000185	 jb TwoWon
+ 000005D9  0F 87 000000C2	 ja OneWon
+
+ 000005DF			 Tie:
+ 000005DF  BA 0000067D R	  mov edx, OFFSET tieMsg
+ 000005E4  E8 00000000 E	  call WriteString
+ 000005E9  BA 00000671 R	  mov edx, OFFSET exclaim
+ 000005EE  E8 00000000 E	  call WriteString
+ 000005F3  E8 00000000 E	  call Crlf
+ 000005F8  E8 00000000 E	  call Crlf
+ 000005FD  BA 000006A2 R	  mov edx, OFFSET divider
+ 00000602  E8 00000000 E	  call WriteString
+ 00000607  B2 00		  mov dl, 0
+ 00000609  B6 03		  mov dh, 3
+ 0000060B  E8 00000000 E	  call Gotoxy
+ 00000610  BA 00000689 R	  mov edx, OFFSET player
+ 00000615  E8 00000000 E	  call WriteString
+ 0000061A  B2 0E		  mov dl, 14
+ 0000061C  B6 03		  mov dh, 3
+ 0000061E  E8 00000000 E	  call Gotoxy
+ 00000623  BA 00000517 R	  mov edx, OFFSET points_message
+ 00000628  E8 00000000 E	  call WriteString
+ 0000062D  E8 00000000 E	  call Crlf
+ 00000632  BA 000006A2 R	  mov edx, OFFSET divider
+ 00000637  E8 00000000 E	  call WriteString
+ 0000063C  E8 00000000 E	  call Crlf
+ 00000641  B2 00		  mov dl, 0
+ 00000643  B6 05		  mov dh, 5
+ 00000645  E8 00000000 E	  call Gotoxy
+ 0000064A  BA 000005F9 R	  mov edx, OFFSET user2
+ 0000064F  E8 00000000 E	  call WriteString
+ 00000654  B2 0F		  mov dl, 15
+ 00000656  B6 05		  mov dh, 5
+ 00000658  E8 00000000 E	  call Gotoxy
+ 0000065D  A1 00000632 R	  mov eax, pointsUser1
+ 00000662  E8 00000000 E	  call WriteInt
+ 00000667  E8 00000000 E	  call Crlf
+ 0000066C  B2 00		  mov dl, 0
+ 0000066E  B6 06		  mov dh, 6
+ 00000670  E8 00000000 E	  call Gotoxy
+ 00000675  BA 000005EF R	  mov edx, OFFSET user1
+ 0000067A  E8 00000000 E	  call WriteString
+ 0000067F  B2 0F		  mov dl, 15
+ 00000681  B6 06		  mov dh, 6
+ 00000683  E8 00000000 E	  call Gotoxy
+ 00000688  A1 00000636 R	  mov eax, pointsUser2
+ 0000068D  E8 00000000 E	  call WriteInt
+ 00000692  E8 00000000 E	  call Crlf
+ 00000697  E9 0000017A		  jmp MoveOn
+ 0000069C  E9 00000175		  jmp MoveOn
+
+ 000006A1			 OneWon:
+ 000006A1  BA 000005F9 R	  mov edx, OFFSET user2
+ 000006A6  E8 00000000 E	  call WriteString
+ 000006AB  BA 00000671 R	  mov edx, OFFSET exclaim
+ 000006B0  E8 00000000 E	  call WriteString
+ 000006B5  E8 00000000 E	  call Crlf
+ 000006BA  E8 00000000 E	  call Crlf
+ 000006BF  BA 000006A2 R	  mov edx, OFFSET divider
+ 000006C4  E8 00000000 E	  call WriteString
+ 000006C9  B2 00		  mov dl, 0
+ 000006CB  B6 03		  mov dh, 3
+ 000006CD  E8 00000000 E	  call Gotoxy
+ 000006D2  BA 00000689 R	  mov edx, OFFSET player
+ 000006D7  E8 00000000 E	  call WriteString
+ 000006DC  B2 0E		  mov dl, 14
+ 000006DE  B6 03		  mov dh, 3
+ 000006E0  E8 00000000 E	  call Gotoxy
+ 000006E5  BA 00000517 R	  mov edx, OFFSET points_message
+ 000006EA  E8 00000000 E	  call WriteString
+ 000006EF  E8 00000000 E	  call Crlf
+ 000006F4  BA 000006A2 R	  mov edx, OFFSET divider
+ 000006F9  E8 00000000 E	  call WriteString
+ 000006FE  E8 00000000 E	  call Crlf
+ 00000703  B2 00		  mov dl, 0
+ 00000705  B6 05		  mov dh, 5
+ 00000707  E8 00000000 E	  call Gotoxy
+ 0000070C  BA 000005F9 R	  mov edx, OFFSET user2
+ 00000711  E8 00000000 E	  call WriteString
+ 00000716  B2 0F		  mov dl, 15
+ 00000718  B6 05		  mov dh, 5
+ 0000071A  E8 00000000 E	  call Gotoxy
+ 0000071F  A1 00000632 R	  mov eax, pointsUser1
+ 00000724  E8 00000000 E	  call WriteInt
+ 00000729  E8 00000000 E	  call Crlf
+ 0000072E  B2 00		  mov dl, 0
+ 00000730  B6 06		  mov dh, 6
+ 00000732  E8 00000000 E	  call Gotoxy
+ 00000737  BA 000005EF R	  mov edx, OFFSET user1
+ 0000073C  E8 00000000 E	  call WriteString
+ 00000741  B2 0F		  mov dl, 15
+ 00000743  B6 06		  mov dh, 6
+ 00000745  E8 00000000 E	  call Gotoxy
+ 0000074A  A1 00000636 R	  mov eax, pointsUser2
+ 0000074F  E8 00000000 E	  call WriteInt
+ 00000754  E8 00000000 E	  call Crlf
+ 00000759  E9 000000B8		  jmp MoveOn
+ 0000075E			 TwoWon:
+ 0000075E  BA 000005EF R	  mov edx, OFFSET user1
+ 00000763  E8 00000000 E	  call WriteString
+ 00000768  BA 00000671 R	  mov edx, OFFSET exclaim
+ 0000076D  E8 00000000 E	  call WriteString
+ 00000772  E8 00000000 E	  call Crlf
+ 00000777  E8 00000000 E	  call Crlf
+ 0000077C  BA 000006A2 R	  mov edx, OFFSET divider
+ 00000781  E8 00000000 E	  call WriteString
+ 00000786  B2 00		  mov dl, 0
+ 00000788  B6 03		  mov dh, 3
+ 0000078A  E8 00000000 E	  call Gotoxy
+ 0000078F  BA 00000689 R	  mov edx, OFFSET player
+ 00000794  E8 00000000 E	  call WriteString
+ 00000799  B2 0E		  mov dl, 14
+ 0000079B  B6 03		  mov dh, 3
+ 0000079D  E8 00000000 E	  call Gotoxy
+ 000007A2  BA 00000517 R	  mov edx, OFFSET points_message
+ 000007A7  E8 00000000 E	  call WriteString
+ 000007AC  E8 00000000 E	  call Crlf
+ 000007B1  BA 000006A2 R	  mov edx, OFFSET divider
+ 000007B6  E8 00000000 E	  call WriteString
+ 000007BB  E8 00000000 E	  call Crlf
+ 000007C0  B2 00		  mov dl, 0
+ 000007C2  B6 05		  mov dh, 5
+ 000007C4  E8 00000000 E	  call Gotoxy
+ 000007C9  BA 000005EF R	  mov edx, OFFSET user1
+ 000007CE  E8 00000000 E	  call WriteString
+ 000007D3  B2 0F		  mov dl, 15
+ 000007D5  B6 05		  mov dh, 5
+ 000007D7  E8 00000000 E	  call Gotoxy
+ 000007DC  A1 00000636 R	  mov eax, pointsUser2
+ 000007E1  E8 00000000 E	  call WriteInt
+ 000007E6  E8 00000000 E	  call Crlf
+ 000007EB  B2 00		  mov dl, 0
+ 000007ED  B6 06		  mov dh, 6
+ 000007EF  E8 00000000 E	  call Gotoxy
+ 000007F4  BA 000005F9 R	  mov edx, OFFSET user2
+ 000007F9  E8 00000000 E	  call WriteString
+ 000007FE  B2 0F		  mov dl, 15
+ 00000800  B6 06		  mov dh, 6
+ 00000802  E8 00000000 E	  call Gotoxy
+ 00000807  A1 00000632 R	  mov eax, pointsUser1
+ 0000080C  E8 00000000 E	  call WriteInt
+ 00000811  E8 00000000 E	  call Crlf
+				 
+ 00000816			 MoveOn:
+ 00000816  BA 000006A2 R	  mov edx, OFFSET divider
+ 0000081B  E8 00000000 E	  call WriteString
+ 00000820  E8 00000000 E	  call Crlf
+ 00000825  E8 00000000 E	  call Crlf
+ 0000082A  C3			  ret
+ 0000082B			ScoreScreen ENDP
 
 				;--------------------------------------------------------
 				;					DisplayRules PROC
 				; Output the various rules of the program to the console
 				; before it prompts the user for input.
 				;--------------------------------------------------------
- 00000422			DisplayRules PROC
- 00000422  B8 0000000A		 mov eax, (black*16) + lightGreen
- 00000427  E8 00000000 E	 call SetTextColor
- 0000042C  BA 00000035 R	 mov edx, OFFSET green_message
- 00000431  E8 00000000 E	 call WriteString
- 00000436  E8 00000000 E	 call Crlf
- 0000043B  E8 00000000 E	 call Crlf
- 00000440  B8 0000000E		 mov eax, (black*16) + yellow
- 00000445  E8 00000000 E	 call SetTextColor
- 0000044A  BA 0000006A R	 mov edx, OFFSET yellow_message
- 0000044F  E8 00000000 E	 call WriteString
- 00000454  E8 00000000 E	 call Crlf
- 00000459  E8 00000000 E	 call Crlf
- 0000045E  B8 0000000C		 mov eax, (black*16) + lightRed
- 00000463  E8 00000000 E	 call SetTextColor
- 00000468  BA 000000A2 R	 mov edx, OFFSET red_message
- 0000046D  E8 00000000 E	 call WriteString
- 00000472  E8 00000000 E	 call Crlf
- 00000477  E8 00000000 E	 call Crlf
- 0000047C  B8 00000003		 mov eax, (black*16) + cyan
- 00000481  E8 00000000 E	 call SetTextColor
- 00000486  BA 000000D1 R	 mov edx, OFFSET rule1		
- 0000048B  E8 00000000 E	 call WriteString
- 00000490  E8 00000000 E	 call Crlf
- 00000495  BA 00000114 R	 mov edx, OFFSET rule2		
- 0000049A  E8 00000000 E	 call WriteString
- 0000049F  E8 00000000 E	 call Crlf
- 000004A4  BA 0000014A R	 mov edx, OFFSET rule3
- 000004A9  E8 00000000 E	 call WriteString
- 000004AE  E8 00000000 E	 call Crlf
- 000004B3  BA 00000175 R	 mov edx, OFFSET rule4		
- 000004B8  E8 00000000 E	 call WriteString
- 000004BD  E8 00000000 E	 call Crlf
- 000004C2  BA 000001C3 R	 mov edx, OFFSET rule5		
- 000004C7  E8 00000000 E	 call WriteString
- 000004CC  E8 00000000 E	 call Crlf
- 000004D1  BA 00000201 R	 mov edx, OFFSET rule6
- 000004D6  E8 00000000 E	 call WriteString
- 000004DB  E8 00000000 E	 call Crlf
- 000004E0  BA 00000234 R	 mov edx, OFFSET rule7		
- 000004E5  E8 00000000 E	 call WriteString
- 000004EA  E8 00000000 E	 call Crlf
- 000004EF  B2 1D		 mov dl,29
- 000004F1  B6 0E		 mov dh,14
- 000004F3  E8 00000000 E	 call GoToXY                ; Change position
- 000004F8  B8 0000000D		 mov eax, (black*16) + lightMagenta
- 000004FD  E8 00000000 E	 call SetTextColor
- 00000502  BA 00000493 R	 mov edx, OFFSET luck		; Output final message
- 00000507  E8 00000000 E	 call WriteString
- 0000050C  E8 00000000 E	 call Crlf
- 00000511  E8 00000000 E	 call Crlf
- 00000516  B8 0000000F		 mov eax, (black*16) + white
- 0000051B  E8 00000000 E	 call SetTextColor          ; Revert color back
- 00000520  C3			 ret
- 00000521			DisplayRules ENDP
+ 0000082B			DisplayRules PROC
+ 0000082B  B8 0000000A		 mov eax, (black*16) + lightGreen
+ 00000830  E8 00000000 E	 call SetTextColor
+ 00000835  BA 00000035 R	 mov edx, OFFSET green_message
+ 0000083A  E8 00000000 E	 call WriteString
+ 0000083F  E8 00000000 E	 call Crlf
+ 00000844  E8 00000000 E	 call Crlf
+ 00000849  B8 0000000E		 mov eax, (black*16) + yellow
+ 0000084E  E8 00000000 E	 call SetTextColor
+ 00000853  BA 0000006A R	 mov edx, OFFSET yellow_message
+ 00000858  E8 00000000 E	 call WriteString
+ 0000085D  E8 00000000 E	 call Crlf
+ 00000862  E8 00000000 E	 call Crlf
+ 00000867  B8 0000000C		 mov eax, (black*16) + lightRed
+ 0000086C  E8 00000000 E	 call SetTextColor
+ 00000871  BA 000000A2 R	 mov edx, OFFSET red_message
+ 00000876  E8 00000000 E	 call WriteString
+ 0000087B  E8 00000000 E	 call Crlf
+ 00000880  E8 00000000 E	 call Crlf
+ 00000885  B8 00000003		 mov eax, (black*16) + cyan
+ 0000088A  E8 00000000 E	 call SetTextColor
+ 0000088F  BA 000000D1 R	 mov edx, OFFSET rule1		
+ 00000894  E8 00000000 E	 call WriteString
+ 00000899  E8 00000000 E	 call Crlf
+ 0000089E  BA 00000114 R	 mov edx, OFFSET rule2		
+ 000008A3  E8 00000000 E	 call WriteString
+ 000008A8  E8 00000000 E	 call Crlf
+ 000008AD  BA 0000014A R	 mov edx, OFFSET rule3
+ 000008B2  E8 00000000 E	 call WriteString
+ 000008B7  E8 00000000 E	 call Crlf
+ 000008BC  BA 00000175 R	 mov edx, OFFSET rule4		
+ 000008C1  E8 00000000 E	 call WriteString
+ 000008C6  E8 00000000 E	 call Crlf
+ 000008CB  BA 000001C3 R	 mov edx, OFFSET rule5		
+ 000008D0  E8 00000000 E	 call WriteString
+ 000008D5  E8 00000000 E	 call Crlf
+ 000008DA  BA 00000201 R	 mov edx, OFFSET rule6
+ 000008DF  E8 00000000 E	 call WriteString
+ 000008E4  E8 00000000 E	 call Crlf
+ 000008E9  BA 00000234 R	 mov edx, OFFSET rule7		
+ 000008EE  E8 00000000 E	 call WriteString
+ 000008F3  E8 00000000 E	 call Crlf
+ 000008F8  B2 1D		 mov dl,29
+ 000008FA  B6 0E		 mov dh,14
+ 000008FC  E8 00000000 E	 call GoToXY                ; Change position
+ 00000901  B8 0000000D		 mov eax, (black*16) + lightMagenta
+ 00000906  E8 00000000 E	 call SetTextColor
+ 0000090B  BA 00000493 R	 mov edx, OFFSET luck		; Output final message
+ 00000910  E8 00000000 E	 call WriteString
+ 00000915  E8 00000000 E	 call Crlf
+ 0000091A  E8 00000000 E	 call Crlf
+ 0000091F  B8 0000000F		 mov eax, (black*16) + white
+ 00000924  E8 00000000 E	 call SetTextColor          ; Revert color back
+ 00000929  C3			 ret
+ 0000092A			DisplayRules ENDP
 
 
 				;--------------------------------------------------------
@@ -784,39 +1090,39 @@ wordle.asm						     Page 1 - 1
 				; Procedure that takes input for the value of the string
 				; that the comparisons will be paried against.
 				;--------------------------------------------------------
- 00000521			CollectString PROC
- 00000521  BA 000005A3 R	 mov edx, OFFSET prompt_message
- 00000526  E8 00000000 E	 call WriteString			; Output message		 
- 0000052B  B8 00000000		 mov eax, (black*16) + black
- 00000530  E8 00000000 E	 call SetTextColor			; Hide input from user
- 00000535  BA 0000059D R	 mov edx, OFFSET true_string
- 0000053A  B9 00000006		 mov ecx, (LENGTHOF true_string)
- 0000053F  E8 00000000 E	 call ReadString            ; Read input
+ 0000092A			CollectString PROC
+ 0000092A  BA 000005BC R	 mov edx, OFFSET prompt_message
+ 0000092F  E8 00000000 E	 call WriteString			; Output message		 
+ 00000934  B8 00000000		 mov eax, (black*16) + black
+ 00000939  E8 00000000 E	 call SetTextColor			; Hide input from user
+ 0000093E  BA 000005B6 R	 mov edx, OFFSET true_string
+ 00000943  B9 00000006		 mov ecx, (LENGTHOF true_string)
+ 00000948  E8 00000000 E	 call ReadString            ; Read input
 				 ToUpper edx                ; Call toUpper macro
- 00000544  8B F2	     1	 mov esi, edx                  ; Move string to reg
- 00000546  B9 00000005	     1	 mov ecx, 5                     ; Counter for loop
- 0000054B		     1	 StandardizeCase:
- 0000054B  8A 06	     1	  mov al, [esi]
- 0000054D  3C 00	     1	  cmp al, 0                     ; Do comparison
- 0000054F  74 0E	     1	  je OutLoop                    
- 00000551  3C 61	     1	  cmp al, 'a'
- 00000553  72 07	     1	  jb NextLetter                 ; Jump
- 00000555  3C 7A	     1	  cmp al, 'z'
- 00000557  77 03	     1	  ja NextLetter                 ; Jump
- 00000559  80 26 DF	     1	  and BYTE PTR [esi], 11011111b
- 0000055C		     1	 NextLetter:                    ; Move to next letter
- 0000055C  46		     1	  inc esi                       ; in string
- 0000055D  EB EC	     1	  jmp StandardizeCase
- 0000055F		     1	 OutLoop:                  
- 0000055F  B9 00000000	     1	  mov ecx, 0
- 00000564  B8 0000000F		 mov eax, (black*16) + white
- 00000569  E8 00000000 E	 call SetTextColor			; Revert text color to white
- 0000056E  BF 0000059D R	 mov edi, OFFSET [true_string]
- 00000573  B9 00000005		 mov ecx, LENGTHOF true_string - 1
- 00000578  E8 00000006		 call IsValid		        ; Check if input length is valid
- 0000057D  E8 00000000 E	 call Crlf
- 00000582  C3			 ret                        ; Return back to callee proc
- 00000583			CollectString ENDP
+ 0000094D  8B F2	     1	 mov esi, edx                  ; Move string to reg
+ 0000094F  B9 00000005	     1	 mov ecx, 5                     ; Counter for loop
+ 00000954		     1	 StandardizeCase:
+ 00000954  8A 06	     1	  mov al, [esi]
+ 00000956  3C 00	     1	  cmp al, 0                     ; Do comparison
+ 00000958  74 0E	     1	  je OutLoop                    
+ 0000095A  3C 61	     1	  cmp al, 'a'
+ 0000095C  72 07	     1	  jb NextLetter                 ; Jump
+ 0000095E  3C 7A	     1	  cmp al, 'z'
+ 00000960  77 03	     1	  ja NextLetter                 ; Jump
+ 00000962  80 26 DF	     1	  and BYTE PTR [esi], 11011111b
+ 00000965		     1	 NextLetter:                    ; Move to next letter
+ 00000965  46		     1	  inc esi                       ; in string
+ 00000966  EB EC	     1	  jmp StandardizeCase
+ 00000968		     1	 OutLoop:                  
+ 00000968  B9 00000000	     1	  mov ecx, 0
+ 0000096D  B8 0000000F		 mov eax, (black*16) + white
+ 00000972  E8 00000000 E	 call SetTextColor			; Revert text color to white
+ 00000977  BF 000005B6 R	 mov edi, OFFSET [true_string]
+ 0000097C  B9 00000005		 mov ecx, LENGTHOF true_string - 1
+ 00000981  E8 00000006		 call IsValid		        ; Check if input length is valid
+ 00000986  E8 00000000 E	 call Crlf
+ 0000098B  C3			 ret                        ; Return back to callee proc
+ 0000098C			CollectString ENDP
 
 
 				;--------------------------------------------------------
@@ -826,29 +1132,29 @@ wordle.asm						     Page 1 - 1
 				; must ensure that the length of the string meets the 
 				; requirements.
 				;--------------------------------------------------------
- 00000583			IsValid PROC
- 00000583  B0 00		 mov al, 0h                 ; Move null character to register
- 00000585  FC			 cld
- 00000586  F2/ AE		 repne scasb                ; Search string for null
- 00000588  75 31		 jnz Return                 ; If not found
- 0000058A  74 00		 jz NotValid                ; If found
+ 0000098C			IsValid PROC
+ 0000098C  B0 00		 mov al, 0h                 ; Move null character to register
+ 0000098E  FC			 cld
+ 0000098F  F2/ AE		 repne scasb                ; Search string for null
+ 00000991  75 31		 jnz Return                 ; If not found
+ 00000993  74 00		 jz NotValid                ; If found
 				 
- 0000058C			 NotValid:
- 0000058C  E8 00000000 E	  call Crlf
- 00000591  B8 0000000C		  mov eax,(black*16) + lightRed  
- 00000596  E8 00000000 E	  call SetTextColor         ; Change text to red
- 0000059B  BA 0000053F R	  mov edx, OFFSET not_valid 
- 000005A0  E8 00000000 E	  call WriteString          ; Write invalid message
- 000005A5  B8 0000000F		  mov eax,(black*16) + white
- 000005AA  E8 00000000 E	  call SetTextColor         ; Rever color
- 000005AF  E8 00000000 E	  call Crlf
+ 00000995			 NotValid:
+ 00000995  E8 00000000 E	  call Crlf
+ 0000099A  B8 0000000C		  mov eax,(black*16) + lightRed  
+ 0000099F  E8 00000000 E	  call SetTextColor         ; Change text to red
+ 000009A4  BA 0000053F R	  mov edx, OFFSET not_valid 
+ 000009A9  E8 00000000 E	  call WriteString          ; Write invalid message
+ 000009AE  B8 0000000F		  mov eax,(black*16) + white
+ 000009B3  E8 00000000 E	  call SetTextColor         ; Rever color
+ 000009B8  E8 00000000 E	  call Crlf
 				  INVOKE ExitProcess,0      ; Exit the program
- 000005B4  6A 00	   *	    push   +000000000h
- 000005B6  E8 00000000 E   *	    call   ExitProcess
+ 000009BD  6A 00	   *	    push   +000000000h
+ 000009BF  E8 00000000 E   *	    call   ExitProcess
 				   
- 000005BB			 Return:
- 000005BB  C3			  ret                       ; Return to callee
- 000005BC			IsValid ENDP
+ 000009C4			 Return:
+ 000009C4  C3			  ret                       ; Return to callee
+ 000009C5			IsValid ENDP
 				 
 
 				;--------------------------------------------------------
@@ -857,50 +1163,50 @@ wordle.asm						     Page 1 - 1
 				; a selected word from the list provided to check for
 				; the correctness of the users inputted value.
 				;--------------------------------------------------------
- 000005BC			ProcessInput PROC
- 000005BC  BA 00000585 R	 mov edx, OFFSET input_string       
- 000005C1  E8 00000000 E	 call WriteString           ; Output input header
+ 000009C5			ProcessInput PROC
+ 000009C5  BA 0000059E R	 mov edx, OFFSET input_string       
+ 000009CA  E8 00000000 E	 call WriteString           ; Output input header
 
- 000005C6  BA 00000597 R	 mov edx, OFFSET user_input         
- 000005CB  B9 00000006		 mov ecx, (LENGTHOF user_input) 
- 000005D0  E8 00000000 E	 call ReadString            ; Take user input
+ 000009CF  BA 000005B0 R	 mov edx, OFFSET user_input         
+ 000009D4  B9 00000006		 mov ecx, (LENGTHOF user_input) 
+ 000009D9  E8 00000000 E	 call ReadString            ; Take user input
 				 
 				 ToUpper edx                ; Call toUpper macro
- 000005D5  8B F2	     1	 mov esi, edx                  ; Move string to reg
- 000005D7  B9 00000005	     1	 mov ecx, 5                     ; Counter for loop
- 000005DC		     1	 StandardizeCase:
- 000005DC  8A 06	     1	  mov al, [esi]
- 000005DE  3C 00	     1	  cmp al, 0                     ; Do comparison
- 000005E0  74 0E	     1	  je OutLoop                    
- 000005E2  3C 61	     1	  cmp al, 'a'
- 000005E4  72 07	     1	  jb NextLetter                 ; Jump
- 000005E6  3C 7A	     1	  cmp al, 'z'
- 000005E8  77 03	     1	  ja NextLetter                 ; Jump
- 000005EA  80 26 DF	     1	  and BYTE PTR [esi], 11011111b
- 000005ED		     1	 NextLetter:                    ; Move to next letter
- 000005ED  46		     1	  inc esi                       ; in string
- 000005EE  EB EC	     1	  jmp StandardizeCase
- 000005F0		     1	 OutLoop:                  
- 000005F0  B9 00000000	     1	  mov ecx, 0
+ 000009DE  8B F2	     1	 mov esi, edx                  ; Move string to reg
+ 000009E0  B9 00000005	     1	 mov ecx, 5                     ; Counter for loop
+ 000009E5		     1	 StandardizeCase:
+ 000009E5  8A 06	     1	  mov al, [esi]
+ 000009E7  3C 00	     1	  cmp al, 0                     ; Do comparison
+ 000009E9  74 0E	     1	  je OutLoop                    
+ 000009EB  3C 61	     1	  cmp al, 'a'
+ 000009ED  72 07	     1	  jb NextLetter                 ; Jump
+ 000009EF  3C 7A	     1	  cmp al, 'z'
+ 000009F1  77 03	     1	  ja NextLetter                 ; Jump
+ 000009F3  80 26 DF	     1	  and BYTE PTR [esi], 11011111b
+ 000009F6		     1	 NextLetter:                    ; Move to next letter
+ 000009F6  46		     1	  inc esi                       ; in string
+ 000009F7  EB EC	     1	  jmp StandardizeCase
+ 000009F9		     1	 OutLoop:                  
+ 000009F9  B9 00000000	     1	  mov ecx, 0
 
- 000005F5  BF 00000597 R	 mov edi, OFFSET [user_input]
- 000005FA  B9 00000005		 mov ecx, LENGTHOF user_input - 1 
- 000005FF  E8 FFFFFF7F		 call IsValid               ; Check to see if input is
+ 000009FE  BF 000005B0 R	 mov edi, OFFSET [user_input]
+ 00000A03  B9 00000005		 mov ecx, LENGTHOF user_input - 1 
+ 00000A08  E8 FFFFFF7F		 call IsValid               ; Check to see if input is
 				                            ; valid
 
- 00000604  BA 0000058D R	 mov edx, OFFSET attempt_string     
- 00000609  E8 00000000 E	 call WriteString           ; Output attempt header
+ 00000A0D  BA 000005A6 R	 mov edx, OFFSET attempt_string     
+ 00000A12  E8 00000000 E	 call WriteString           ; Output attempt header
 				 
 				 ; Initialize register values with input from the users
- 0000060E  BF 0000059D R	 mov edi, OFFSET [true_string]      
- 00000613  BE 00000597 R	 mov esi, OFFSET [user_input]
+ 00000A17  BF 000005B6 R	 mov edi, OFFSET [true_string]      
+ 00000A1C  BE 000005B0 R	 mov esi, OFFSET [user_input]
 				 
- 00000618  B9 00000006		 mov ecx, LENGTHOF true_string
- 0000061D  F3/ A6		 repe cmpsb                 ; Check to see if strings match 
- 0000061F  83 F9 00		 cmp ecx, 0
- 00000622  74 06		 je CompleteEqual           ; If equal output to user and 
+ 00000A21  B9 00000006		 mov ecx, LENGTHOF true_string
+ 00000A26  F3/ A6		 repe cmpsb                 ; Check to see if strings match 
+ 00000A28  83 F9 00		 cmp ecx, 0
+ 00000A2B  74 06		 je CompleteEqual           ; If equal output to user and 
 				                            ; terminate program
- 00000624  0F 85 00000090	 jne NotEqual               ; If not jump to NotEqual
+ 00000A2D  0F 85 00000094	 jne NotEqual               ; If not jump to NotEqual
 
 
 				;--------------------------------------------------------
@@ -909,51 +1215,52 @@ wordle.asm						     Page 1 - 1
 				; the user and congratulate. Once, completed. Terminate
 				; the program.
 				;--------------------------------------------------------
- 0000062A			 CompleteEqual:            
- 0000062A  B8 0000000A		  mov eax,(black*16) + lightGreen 
- 0000062F  E8 00000000 E	  call SetTextColor         ; Change text color to light green
- 00000634  BA 00000597 R	  mov edx, OFFSET user_input
- 00000639  E8 00000000 E	  call WriteString          ; Print user inputted value
- 0000063E  E8 00000000 E	  call Crlf
- 00000643  E8 00000000 E	  call Crlf
+ 00000A33			 CompleteEqual:            
+ 00000A33  B8 0000000A		  mov eax,(black*16) + lightGreen 
+ 00000A38  E8 00000000 E	  call SetTextColor         ; Change text color to light green
+ 00000A3D  BA 000005B0 R	  mov edx, OFFSET user_input
+ 00000A42  E8 00000000 E	  call WriteString          ; Print user inputted value
+ 00000A47  E8 00000000 E	  call Crlf
+ 00000A4C  E8 00000000 E	  call Crlf
 
- 00000648  A1 00000581 R	  mov eax, points
+ 00000A51  A1 00000585 R	  mov eax, points
 				  
- 0000064D  3D 00000258		  cmp eax, 600              ; Determine output based on 
- 00000652  74 09		  je Impossible             ; number of points acquired
- 00000654  3D 0000012C		  cmp eax, 300
- 00000659  73 0E		  jae Good
- 0000065B  72 18		  jb Ok
+ 00000A56  3D 00000258		  cmp eax, 600              ; Determine output based on 
+ 00000A5B  74 09		  je Impossible             ; number of points acquired
+ 00000A5D  3D 0000012C		  cmp eax, 300
+ 00000A62  73 0E		  jae Good
+ 00000A64  72 18		  jb Ok
 				  
- 0000065D			  Impossible:               ; If guessed correctly first try
- 0000065D  BA 000004B5 R	   mov edx, OFFSET attempt1
- 00000662  E8 00000000 E	   call WriteString         ; Write string
- 00000667  EB 18		   jmp Break               
+ 00000A66			  Impossible:               ; If guessed correctly first try
+ 00000A66  BA 000004B5 R	   mov edx, OFFSET attempt1
+ 00000A6B  E8 00000000 E	   call WriteString         ; Write string
+ 00000A70  EB 18		   jmp Break               
 				  
- 00000669			  Good:                     ; If gotten within four tries
- 00000669  BA 000004D0 R	   mov edx, OFFSET pass
- 0000066E  E8 00000000 E	   call WriteString         ; Write string
- 00000673  EB 0C		   jmp Break
+ 00000A72			  Good:                     ; If gotten within four tries
+ 00000A72  BA 000004D0 R	   mov edx, OFFSET pass
+ 00000A77  E8 00000000 E	   call WriteString         ; Write string
+ 00000A7C  EB 0C		   jmp Break
 				  
- 00000675			  Ok:                       ; If gotten in 5 or 6 tries
- 00000675  BA 000004EA R	   mov edx, OFFSET ok_message
- 0000067A  E8 00000000 E	   call WriteString         ; Write string
- 0000067F  EB 00		   jmp Break
+ 00000A7E			  Ok:                       ; If gotten in 5 or 6 tries
+ 00000A7E  BA 000004EA R	   mov edx, OFFSET ok_message
+ 00000A83  E8 00000000 E	   call WriteString         ; Write string
+ 00000A88  EB 00		   jmp Break
 				  
- 00000681			  Break:                    ; Output messages to user, terminate
- 00000681  B8 0000000F		   mov eax, (black*16) + white
- 00000686  E8 00000000 E	   call SetTextColor        ; Revert textcolor
- 0000068B  E8 00000000 E	   call Crlf
- 00000690  BA 0000050A R	   mov edx, OFFSET score_message
- 00000695  E8 00000000 E	   call WriteString         ; Output leading score message
- 0000069A  A1 00000581 R	   mov eax, points          
- 0000069F  E8 00000000 E	   call WriteInt            ; Output number of points
- 000006A4  BA 00000517 R	   mov edx, OFFSET points_message
- 000006A9  E8 00000000 E	   call WriteString         ; Follow by the unit (Points)
- 000006AE  E8 00000000 E	   call Crlf
-				   INVOKE ExitProcess,0     ; Terminate the program
- 000006B3  6A 00	   *	    push   +000000000h
- 000006B5  E8 00000000 E   *	    call   ExitProcess
+ 00000A8A			  Break:                    ; Output messages to user, terminate
+ 00000A8A  B8 0000000F		   mov eax, (black*16) + white
+ 00000A8F  E8 00000000 E	   call SetTextColor        ; Revert textcolor
+ 00000A94  E8 00000000 E	   call Crlf
+ 00000A99  BA 0000050A R	   mov edx, OFFSET score_message
+ 00000A9E  E8 00000000 E	   call WriteString         ; Output leading score message
+ 00000AA3  A1 00000585 R	   mov eax, points          
+ 00000AA8  E8 00000000 E	   call WriteInt            ; Output number of points
+ 00000AAD  BA 00000517 R	   mov edx, OFFSET points_message
+ 00000AB2  E8 00000000 E	   call WriteString         ; Follow by the unit (Points)
+ 00000AB7  E8 00000000 E	   call Crlf
+ 00000ABC  C7 05 00000581 R	   mov foundWord, 1
+	   00000001
+ 00000AC6  C3			   ret
+				   ; INVOKE ExitProcess,0     ; Terminate the program
 
 				;--------------------------------------------------------
 				; If the input did not match the correct string. Iterate 
@@ -964,77 +1271,77 @@ wordle.asm						     Page 1 - 1
 				; tries has run out.
 				;--------------------------------------------------------
 
- 000006BA			 NotEqual:                  ; If complete equality was not acheived
- 000006BA  BF 00000597 R	  mov edi, OFFSET [user_input]       ; Reinitialize registers
- 000006BF  BE 0000059D R	  mov esi, OFFSET [true_string]
- 000006C4  B1 01		  mov cl, 1                 ; Initialize counter register
- 000006C6			  outer:                    ; Iterate through characters in string
- 000006C6  8A 07		   mov al, [edi]            ; Byte comparison for strings
- 000006C8  8A 16		   mov dl, [esi]
- 000006CA  3A C2		   cmp al, dl               ; Check for equality
- 000006CC  74 02		   je DirectMatch           ; If character match
- 000006CE  75 1D		   jne PotentialMatch       ; Else
+ 00000AC7			 NotEqual:                  ; If complete equality was not acheived
+ 00000AC7  BF 000005B0 R	  mov edi, OFFSET [user_input]       ; Reinitialize registers
+ 00000ACC  BE 000005B6 R	  mov esi, OFFSET [true_string]
+ 00000AD1  B1 01		  mov cl, 1                 ; Initialize counter register
+ 00000AD3			  outer:                    ; Iterate through characters in string
+ 00000AD3  8A 07		   mov al, [edi]            ; Byte comparison for strings
+ 00000AD5  8A 16		   mov dl, [esi]
+ 00000AD7  3A C2		   cmp al, dl               ; Check for equality
+ 00000AD9  74 02		   je DirectMatch           ; If character match
+ 00000ADB  75 1D		   jne PotentialMatch       ; Else
 
- 000006D0			   DirectMatch:             ; Given that the characters match
- 000006D0  B8 0000000A		    mov eax,(black*16) + lightGreen
- 000006D5  E8 00000000 E	    call SetTextColor       ; Change text color
- 000006DA  8A 07		    mov al, [edi]
- 000006DC  E8 00000000 E	    call WriteChar          ; Output character
- 000006E1  B8 0000000F		    mov eax,(black*16) + white
- 000006E6  E8 00000000 E	    call SetTextColor       ; Revert text color
- 000006EB  EB 55		    jmp Escape              ; Jump to Escape
+ 00000ADD			   DirectMatch:             ; Given that the characters match
+ 00000ADD  B8 0000000A		    mov eax,(black*16) + lightGreen
+ 00000AE2  E8 00000000 E	    call SetTextColor       ; Change text color
+ 00000AE7  8A 07		    mov al, [edi]
+ 00000AE9  E8 00000000 E	    call WriteChar          ; Output character
+ 00000AEE  B8 0000000F		    mov eax,(black*16) + white
+ 00000AF3  E8 00000000 E	    call SetTextColor       ; Revert text color
+ 00000AF8  EB 55		    jmp Escape              ; Jump to Escape
 
- 000006ED			   PotentialMatch:          ; Check to see if instance of character
- 000006ED  8A 07		    mov al, [edi]           ; exists within the user inputted string
- 000006EF  56			    push esi                
- 000006F0  57			    push edi                ; Store values on stack
- 000006F1  51			    push ecx
- 000006F2  BF 0000059D R	    mov edi, OFFSET [true_string]
- 000006F7  B9 00000006		    mov ecx, LENGTHOF true_string 
- 000006FC  FC			    cld
- 000006FD  F2/ AE		    repne scasb             ; Check for instance of inputted character
- 000006FF  59			    pop ecx                 ; in given string
- 00000700  5F			    pop edi
- 00000701  5E			    pop esi                 ; Pop all of the values from the stack
- 00000702  8A 07		    mov al, [edi]
- 00000704  75 1F		    jnz NotFound            ; If no instance of character
- 00000706  74 00		    jz Found                ; Else
+ 00000AFA			   PotentialMatch:          ; Check to see if instance of character
+ 00000AFA  8A 07		    mov al, [edi]           ; exists within the user inputted string
+ 00000AFC  56			    push esi                
+ 00000AFD  57			    push edi                ; Store values on stack
+ 00000AFE  51			    push ecx
+ 00000AFF  BF 000005B6 R	    mov edi, OFFSET [true_string]
+ 00000B04  B9 00000006		    mov ecx, LENGTHOF true_string 
+ 00000B09  FC			    cld
+ 00000B0A  F2/ AE		    repne scasb             ; Check for instance of inputted character
+ 00000B0C  59			    pop ecx                 ; in given string
+ 00000B0D  5F			    pop edi
+ 00000B0E  5E			    pop esi                 ; Pop all of the values from the stack
+ 00000B0F  8A 07		    mov al, [edi]
+ 00000B11  75 1F		    jnz NotFound            ; If no instance of character
+ 00000B13  74 00		    jz Found                ; Else
 
- 00000708			   Found:                   ; If character exists within the string
- 00000708  B8 0000000E		    mov eax,(black*16) + yellow
- 0000070D  E8 00000000 E	    call SetTextColor       ; Change text color
- 00000712  8A 07		    mov al, [edi]
- 00000714  E8 00000000 E	    call WriteChar          ; Output character
- 00000719  B8 0000000F		    mov eax,(black*16) + white
- 0000071E  E8 00000000 E	    call SetTextColor       ; Revert text color
- 00000723  EB 1D		    jmp Escape              ; Jump to escape
+ 00000B15			   Found:                   ; If character exists within the string
+ 00000B15  B8 0000000E		    mov eax,(black*16) + yellow
+ 00000B1A  E8 00000000 E	    call SetTextColor       ; Change text color
+ 00000B1F  8A 07		    mov al, [edi]
+ 00000B21  E8 00000000 E	    call WriteChar          ; Output character
+ 00000B26  B8 0000000F		    mov eax,(black*16) + white
+ 00000B2B  E8 00000000 E	    call SetTextColor       ; Revert text color
+ 00000B30  EB 1D		    jmp Escape              ; Jump to escape
 
- 00000725			   NotFound:                ; If not instance of character is found
- 00000725  B8 0000000C		    mov eax,(black*16) + lightRed
- 0000072A  E8 00000000 E	    call SetTextColor       ; Change color of output
- 0000072F  8A 07		    mov al, [edi]       
- 00000731  E8 00000000 E	    call WriteChar          ; Write character to console
- 00000736  B8 0000000F		    mov eax,(black*16) + white
- 0000073B  E8 00000000 E	    call SetTextColor       ; Revert text color
- 00000740  EB 00		    jmp Escape              ; Jump to escape
+ 00000B32			   NotFound:                ; If not instance of character is found
+ 00000B32  B8 0000000C		    mov eax,(black*16) + lightRed
+ 00000B37  E8 00000000 E	    call SetTextColor       ; Change color of output
+ 00000B3C  8A 07		    mov al, [edi]       
+ 00000B3E  E8 00000000 E	    call WriteChar          ; Write character to console
+ 00000B43  B8 0000000F		    mov eax,(black*16) + white
+ 00000B48  E8 00000000 E	    call SetTextColor       ; Revert text color
+ 00000B4D  EB 00		    jmp Escape              ; Jump to escape
 
- 00000742			   Escape:                  ; Increment the loop until no longer
- 00000742  46			    inc esi                 ; valid. Check every characeter in
- 00000743  47			    inc edi                 ; string.
- 00000744  FE C1		    inc cl
- 00000746  80 F9 06		    cmp cl, 6
- 00000749  0F 85 FFFFFF77	    jne outer
+ 00000B4F			   Escape:                  ; Increment the loop until no longer
+ 00000B4F  46			    inc esi                 ; valid. Check every characeter in
+ 00000B50  47			    inc edi                 ; string.
+ 00000B51  FE C1		    inc cl
+ 00000B53  80 F9 06		    cmp cl, 6
+ 00000B56  0F 85 FFFFFF77	    jne outer
 
- 0000074F  E8 00000000 E	 call Crlf
- 00000754  E8 00000000 E	 call Crlf
- 00000759  BA 0000051F R	 mov edx, OFFSET minus_points
- 0000075E  E8 00000000 E	 call WriteString           ; Out number of points lost
- 00000763  E8 00000000 E	 call Crlf
- 00000768  C3			 ret                        ; Return to driver loop in main PROC
- 00000769			ProcessInput ENDP
+ 00000B5C  E8 00000000 E	 call Crlf
+ 00000B61  E8 00000000 E	 call Crlf
+ 00000B66  BA 0000051F R	 mov edx, OFFSET minus_points
+ 00000B6B  E8 00000000 E	 call WriteString           ; Out number of points lost
+ 00000B70  E8 00000000 E	 call Crlf
+ 00000B75  C3			 ret                        ; Return to driver loop in main PROC
+ 00000B76			ProcessInput ENDP
 				END main
 
-Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/27/22 22:01:48
+Microsoft (R) Macro Assembler Version 14.29.30147.0	    11/28/22 23:02:03
 wordle.asm						     Symbols 2 - 1
 
 
@@ -1135,8 +1442,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000062A Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000769 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000006D4 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000B76 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -1146,23 +1453,23 @@ Procedures, parameters, and locals:
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-CollectString  . . . . . . . . .	P Near	 00000521 _TEXT	Length= 00000062 Public STDCALL
-  StandardizeCase  . . . . . . .	L Near	 0000054B _TEXT	
-  NextLetter . . . . . . . . . .	L Near	 0000055C _TEXT	
-  OutLoop  . . . . . . . . . . .	L Near	 0000055F _TEXT	
+CollectString  . . . . . . . . .	P Near	 0000092A _TEXT	Length= 00000062 Public STDCALL
+  StandardizeCase  . . . . . . .	L Near	 00000954 _TEXT	
+  NextLetter . . . . . . . . . .	L Near	 00000965 _TEXT	
+  OutLoop  . . . . . . . . . . .	L Near	 00000968 _TEXT	
 CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DisplayLoad  . . . . . . . . . .	P Near	 000001D2 _TEXT	Length= 00000250 Public STDCALL
-  First  . . . . . . . . . . . .	L Near	 000002D6 _TEXT	
-  Second . . . . . . . . . . . .	L Near	 000002EF _TEXT	
-  Third  . . . . . . . . . . . .	L Near	 00000367 _TEXT	
-  Fourth . . . . . . . . . . . .	L Near	 000003EB _TEXT	
-  Invalid  . . . . . . . . . . .	L Near	 000003ED _TEXT	
-  Home . . . . . . . . . . . . .	L Near	 0000041C _TEXT	
-  Escape . . . . . . . . . . . .	L Near	 00000421 _TEXT	
-DisplayRules . . . . . . . . . .	P Near	 00000422 _TEXT	Length= 000000FF Public STDCALL
+DisplayLoad  . . . . . . . . . .	P Near	 00000367 _TEXT	Length= 00000250 Public STDCALL
+  First  . . . . . . . . . . . .	L Near	 0000046B _TEXT	
+  Second . . . . . . . . . . . .	L Near	 00000484 _TEXT	
+  Third  . . . . . . . . . . . .	L Near	 000004FC _TEXT	
+  Fourth . . . . . . . . . . . .	L Near	 00000580 _TEXT	
+  Invalid  . . . . . . . . . . .	L Near	 00000582 _TEXT	
+  Home . . . . . . . . . . . . .	L Near	 000005B1 _TEXT	
+  Escape . . . . . . . . . . . .	L Near	 000005B6 _TEXT	
+DisplayRules . . . . . . . . . .	P Near	 0000082B _TEXT	Length= 000000FF Public STDCALL
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1196,9 +1503,9 @@ HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-IsValid  . . . . . . . . . . . .	P Near	 00000583 _TEXT	Length= 00000039 Public STDCALL
-  NotValid . . . . . . . . . . .	L Near	 0000058C _TEXT	
-  Return . . . . . . . . . . . .	L Near	 000005BB _TEXT	
+IsValid  . . . . . . . . . . . .	P Near	 0000098C _TEXT	Length= 00000039 Public STDCALL
+  NotValid . . . . . . . . . . .	L Near	 00000995 _TEXT	
+  Return . . . . . . . . . . . .	L Near	 000009C4 _TEXT	
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1207,22 +1514,22 @@ OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-ProcessInput . . . . . . . . . .	P Near	 000005BC _TEXT	Length= 000001AD Public STDCALL
-  StandardizeCase  . . . . . . .	L Near	 000005DC _TEXT	
-  NextLetter . . . . . . . . . .	L Near	 000005ED _TEXT	
-  OutLoop  . . . . . . . . . . .	L Near	 000005F0 _TEXT	
-  CompleteEqual  . . . . . . . .	L Near	 0000062A _TEXT	
-  Impossible . . . . . . . . . .	L Near	 0000065D _TEXT	
-  Good . . . . . . . . . . . . .	L Near	 00000669 _TEXT	
-  Ok . . . . . . . . . . . . . .	L Near	 00000675 _TEXT	
-  Break  . . . . . . . . . . . .	L Near	 00000681 _TEXT	
-  NotEqual . . . . . . . . . . .	L Near	 000006BA _TEXT	
-  outer  . . . . . . . . . . . .	L Near	 000006C6 _TEXT	
-  DirectMatch  . . . . . . . . .	L Near	 000006D0 _TEXT	
-  PotentialMatch . . . . . . . .	L Near	 000006ED _TEXT	
-  Found  . . . . . . . . . . . .	L Near	 00000708 _TEXT	
-  NotFound . . . . . . . . . . .	L Near	 00000725 _TEXT	
-  Escape . . . . . . . . . . . .	L Near	 00000742 _TEXT	
+ProcessInput . . . . . . . . . .	P Near	 000009C5 _TEXT	Length= 000001B1 Public STDCALL
+  StandardizeCase  . . . . . . .	L Near	 000009E5 _TEXT	
+  NextLetter . . . . . . . . . .	L Near	 000009F6 _TEXT	
+  OutLoop  . . . . . . . . . . .	L Near	 000009F9 _TEXT	
+  CompleteEqual  . . . . . . . .	L Near	 00000A33 _TEXT	
+  Impossible . . . . . . . . . .	L Near	 00000A66 _TEXT	
+  Good . . . . . . . . . . . . .	L Near	 00000A72 _TEXT	
+  Ok . . . . . . . . . . . . . .	L Near	 00000A7E _TEXT	
+  Break  . . . . . . . . . . . .	L Near	 00000A8A _TEXT	
+  NotEqual . . . . . . . . . . .	L Near	 00000AC7 _TEXT	
+  outer  . . . . . . . . . . . .	L Near	 00000AD3 _TEXT	
+  DirectMatch  . . . . . . . . .	L Near	 00000ADD _TEXT	
+  PotentialMatch . . . . . . . .	L Near	 00000AFA _TEXT	
+  Found  . . . . . . . . . . . .	L Near	 00000B15 _TEXT	
+  NotFound . . . . . . . . . . .	L Near	 00000B32 _TEXT	
+  Escape . . . . . . . . . . . .	L Near	 00000B4F _TEXT	
 Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1238,6 +1545,11 @@ ReadInt  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 ReadKeyFlush . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadKey  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ReadString . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ScoreScreen  . . . . . . . . . .	P Near	 000005B7 _TEXT	Length= 00000274 Public STDCALL
+  Tie  . . . . . . . . . . . . .	L Near	 000005DF _TEXT	
+  OneWon . . . . . . . . . . . .	L Near	 000006A1 _TEXT	
+  TwoWon . . . . . . . . . . . .	L Near	 0000075E _TEXT	
+  MoveOn . . . . . . . . . . . .	L Near	 00000816 _TEXT	
 SetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleCursorPosition . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 SetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -1275,10 +1587,21 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000001D2 Public STDCALL
-  NotValid . . . . . . . . . . .	L Near	 000000A0 _TEXT	
-  Good . . . . . . . . . . . . .	L Near	 000000CF _TEXT	
-  L1 . . . . . . . . . . . . . .	L Near	 000000FA _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000367 Public STDCALL
+  NotValid . . . . . . . . . . .	L Near	 0000009C _TEXT	
+  Good . . . . . . . . . . . . .	L Near	 000000CB _TEXT	
+  Control  . . . . . . . . . . .	L Near	 000000E5 _TEXT	
+  PlayerOne  . . . . . . . . . .	L Near	 00000119 _TEXT	
+  PlayerTwo  . . . . . . . . . .	L Near	 00000148 _TEXT	
+  Cont . . . . . . . . . . . . .	L Near	 00000175 _TEXT	
+  One  . . . . . . . . . . . . .	L Near	 000001BF _TEXT	
+  Two  . . . . . . . . . . . . .	L Near	 000001C6 _TEXT	
+  PassTwo  . . . . . . . . . . .	L Near	 000001CB _TEXT	
+  L1 . . . . . . . . . . . . . .	L Near	 000001F8 _TEXT	
+  Break  . . . . . . . . . . . .	L Near	 000002C7 _TEXT	
+  CurrentPointsOne . . . . . . .	L Near	 000002F8 _TEXT	
+  CurrentPointsTwo . . . . . . .	L Near	 0000030F _TEXT	
+  Skip . . . . . . . . . . . . .	L Near	 00000324 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -1498,15 +1821,21 @@ WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 attempt1 . . . . . . . . . . . .	Byte	 000004B5 _DATA	
-attempt_string . . . . . . . . .	Byte	 0000058D _DATA	
+attempt_string . . . . . . . . .	Byte	 000005A6 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 correct_word . . . . . . . . . .	Byte	 0000056A _DATA	
+currentPlayer  . . . . . . . . .	Byte	 00000673 _DATA	
+currentPointsMsg . . . . . . . .	Byte	 00000589 _DATA	
+currentRound . . . . . . . . . .	DWord	 0000063F _DATA	
 current_points . . . . . . . . .	Byte	 0000052C _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
+divider  . . . . . . . . . . . .	Byte	 000006A2 _DATA	
+exclaim  . . . . . . . . . . . .	Byte	 00000671 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 fail . . . . . . . . . . . . . .	Byte	 0000049E _DATA	
+foundWord  . . . . . . . . . . .	DWord	 00000581 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green_message  . . . . . . . . .	Byte	 00000035 _DATA	
 green  . . . . . . . . . . . . .	Number	 00000002h   
@@ -1514,10 +1843,11 @@ helpful1 . . . . . . . . . . . .	Byte	 00000312 _DATA
 helpful2 . . . . . . . . . . . .	Byte	 00000321 _DATA	
 helpful3 . . . . . . . . . . . .	Byte	 00000337 _DATA	
 helpful  . . . . . . . . . . . .	Byte	 000002F5 _DATA	
-index  . . . . . . . . . . . . .	Byte	 00000629 _DATA	
+index  . . . . . . . . . . . . .	Byte	 0000063E _DATA	
+inform . . . . . . . . . . . . .	Byte	 00000643 _DATA	
 inputOptionPrompt  . . . . . . .	Byte	 000002C6 _DATA	
 inputOption  . . . . . . . . . .	Byte	 00000491 _DATA	
-input_string . . . . . . . . . .	Byte	 00000585 _DATA	
+input_string . . . . . . . . . .	Byte	 0000059E _DATA	
 intro  . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 invalidInput . . . . . . . . . .	Byte	 00000445 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
@@ -1530,7 +1860,7 @@ luck . . . . . . . . . . . . . .	Byte	 00000493 _DATA
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 minus_points . . . . . . . . . .	Byte	 0000051F _DATA	
 not_valid  . . . . . . . . . . .	Byte	 0000053F _DATA	
-numberOfRounds . . . . . . . . .	DWord	 00000625 _DATA	
+numberOfRounds . . . . . . . . .	DWord	 0000063A _DATA	
 ok_message . . . . . . . . . . .	Byte	 000004EA _DATA	
 opt1 . . . . . . . . . . . . . .	Byte	 00000261 _DATA	
 opt2 . . . . . . . . . . . . . .	Byte	 00000263 _DATA	
@@ -1542,14 +1872,15 @@ option3  . . . . . . . . . . . .	Byte	 000002A0 _DATA
 option4  . . . . . . . . . . . .	Byte	 000002B7 _DATA	
 options  . . . . . . . . . . . .	Byte	 00000269 _DATA	
 pass . . . . . . . . . . . . . .	Byte	 000004D0 _DATA	
-pointsUser1  . . . . . . . . . .	FWord	 00000619 _DATA	
-pointsUser2  . . . . . . . . . .	FWord	 0000061F _DATA	
+player . . . . . . . . . . . . .	Byte	 00000689 _DATA	
+pointsUser1  . . . . . . . . . .	DWord	 00000632 _DATA	
+pointsUser2  . . . . . . . . . .	DWord	 00000636 _DATA	
 points_message . . . . . . . . .	Byte	 00000517 _DATA	
-points . . . . . . . . . . . . .	DWord	 00000581 _DATA	
-promptNumber . . . . . . . . . .	Byte	 00000600 _DATA	
-promptUser1  . . . . . . . . . .	Byte	 000005EA _DATA	
-promptUser2  . . . . . . . . . .	Byte	 000005F5 _DATA	
-prompt_message . . . . . . . . .	Byte	 000005A3 _DATA	
+points . . . . . . . . . . . . .	DWord	 00000585 _DATA	
+promptNumber . . . . . . . . . .	Byte	 00000619 _DATA	
+promptUser1  . . . . . . . . . .	Byte	 00000603 _DATA	
+promptUser2  . . . . . . . . . .	Byte	 0000060E _DATA	
+prompt_message . . . . . . . . .	Byte	 000005BC _DATA	
 red_message  . . . . . . . . . .	Byte	 000000A2 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 rule1  . . . . . . . . . . . . .	Byte	 000000D1 _DATA	
@@ -1566,12 +1897,15 @@ scoring2 . . . . . . . . . . . .	Byte	 000003AF _DATA
 scoring3 . . . . . . . . . . . .	Byte	 000003E6 _DATA	
 scoring4 . . . . . . . . . . . .	Byte	 0000041C _DATA	
 scoring  . . . . . . . . . . . .	Byte	 0000035D _DATA	
-true_string  . . . . . . . . . .	Byte	 0000059D _DATA	
-user1  . . . . . . . . . . . . .	Byte	 000005D6 _DATA	
-user2  . . . . . . . . . . . . .	Byte	 000005E0 _DATA	
-user_input . . . . . . . . . . .	Byte	 00000597 _DATA	
-welcomeMsg . . . . . . . . . . .	Byte	 000005CD _DATA	
+startPlay  . . . . . . . . . . .	Byte	 00000652 _DATA	
+tieMsg . . . . . . . . . . . . .	Byte	 0000067D _DATA	
+true_string  . . . . . . . . . .	Byte	 000005B6 _DATA	
+user1  . . . . . . . . . . . . .	Byte	 000005EF _DATA	
+user2  . . . . . . . . . . . . .	Byte	 000005F9 _DATA	
+user_input . . . . . . . . . . .	Byte	 000005B0 _DATA	
+welcomeMsg . . . . . . . . . . .	Byte	 000005E6 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
+winnerMsg  . . . . . . . . . . .	Byte	 00000690 _DATA	
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow_message . . . . . . . . .	Byte	 0000006A _DATA	
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   

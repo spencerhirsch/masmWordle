@@ -92,8 +92,9 @@ minus_points BYTE "-100 Points!",0
 current_points BYTE "Potential points: ",0
 not_valid BYTE "The inputted string is of an invalid size.",0
 correct_word BYTE "The correct word was: ",0
-
+foundWord DWORD 0
 points DWORD 600      ; Initial number of potential points
+currentPointsMsg BYTE "You currently have: ",0
 
 ;--------------------------------------------------------
 ; Messages displayed to the use once the program begins
@@ -124,13 +125,17 @@ user2 BYTE 10 DUP(?)
 promptUser1 BYTE "Player 1: ",0
 promptUser2 BYTE "Player 2: ",0
 promptNumber BYTE "Number of Rounds (1-5): ",0
-pointsUser1 FWORD ?
-pointsUser2 FWORD ?
+pointsUser1 DWORD 0
+pointsUser2 DWORD 0
 numberOfRounds DWORD ?
 index BYTE 1        ; Used for number of attempts
 currentRound DWORD 1
-inform BYTE "Give it a go ",0
+inform BYTE "Choose a word ",0
+startPlay BYTE "You're good to start guessing ",0
 exclaim BYTE "!",0
+currentPlayer BYTE 10 DUP(?)
+tieMsg BYTE "it's a tie!",0
+player BYTE "Player", 0
 
 ;--------------------------------------------------------
 ; Values used for the outputted screen of the scores
@@ -174,14 +179,12 @@ main PROC
  call Crlf
  mov edx, OFFSET promptNumber
  call WriteString
- mov edx, OFFSET numberOfRounds
- mov ecx, (LENGTHOF numberOfRounds)
  call ReadInt
+ mov numberOfRounds, eax
  mov eax, 0
- cmp eax, [numberOfRounds] 
- jbe NotValid
+ cmp numberOfRounds, 0
  ja Good
- 
+ jbe NotValid 
 
  NotValid:
   call Crlf
@@ -195,27 +198,32 @@ main PROC
   INVOKE ExitProcess,0
  
  Good:
-  mov eax, 5
-  cmp eax, [numberOfRounds]
+  cmp numberOfRounds, 5
   ja NotValid
  
- mov eax, [numberOfRounds] 
- mul eax, 2
- mov [numberOfRounds], eax
+ mov eax, numberOfRounds 
+ mov ecx, 2
+ mul ecx
+ mov numberOfRounds, eax
  
  Control: ; Loop used to control the number of rounds of the game
-
- mov eax, currentRound MOD 2
- cmp eax, 1
+ mov foundWord, 0
+ mov index, 1
+ mov points, 600 
+ mov edx, 0
+ mov eax, currentRound
+ mov ecx, 2
+ div ecx
+ cmp edx, 0
  je PlayerOne
  jne PlayerTwo
-
+ push edx
  PlayerOne:
   mov eax, (black*16) + lightGreen
   call SetTextColor
   mov edx, OFFSET inform
   call WriteString
-  mov edx, OFFSET user1
+  mov edx, OFFSET user2
   call WriteString
   mov edx, OFFSET exclaim
   call WriteString
@@ -227,7 +235,7 @@ main PROC
   call SetTextColor
   mov edx, OFFSET inform
   call WriteString
-  mov edx, OFFSET user2
+  mov edx, OFFSET user1
   call WriteString
   mov edx, OFFSET exclaim
   call WriteString
@@ -238,10 +246,35 @@ main PROC
   call SetTextColor
  
  call CollectString             ; Take string from user
- call WaitMsg                
+ call WaitMsg
  call Crlf
+ call Crlf
+ mov eax, (black*16) + lightGreen
+ call SetTextColor
+ mov edx, OFFSET startPlay
+ call WriteString
+ ;pop edx
+ mov edx, 0
+ mov eax, currentRound
+ mov ecx, 2
+ div ecx
+ cmp edx, 1
+ je Two
+ jne One
+
+ One:
+  mov edx, OFFSET user1
+  jmp PassTwo
+ Two:
+  mov edx, OFFSET user2
+ PassTwo:
+  call WriteString
+ mov edx, OFFSET exclaim
+ call WriteString
+ call Crlf                
  call Crlf 
- 
+ mov eax, (black*16) + white
+ call SetTextColor
  mov al, index                  ; Initialize number of attempts
  mov edi,6                      ; Loop decrement varialbe
 
@@ -261,6 +294,8 @@ main PROC
   push eax
   call ProcessInput         ; Take input from user and process
                             ; it accordingly
+  cmp foundWord, 1
+  je Break
 
   mov eax, points           ; Do point calculations based on
   sub eax, 100              ; number of attempts
@@ -302,9 +337,48 @@ mov eax, (black*16) + lightGreen
 call SetTextColor
 mov edx, OFFSET true_string
 call WriteString
-mov eax, (black+16) + white
+Break:
+mov eax, (black*16) + white
 call SetTextColor
 call Crlf
+mov edx, OFFSET currentPointsMsg
+call WriteString
+mov edx, 0
+mov eax, currentRound
+mov ecx, 2
+div ecx
+cmp edx, 1
+je CurrentPointsOne
+jne CurrentPointsTwo
+
+CurrentPointsOne:
+ mov eax, points
+ add pointsUser1, eax
+ ;mov pointsUser1, eax
+ mov eax, pointsUser1
+ call WriteInt
+ jmp Skip
+
+CurrentPointsTwo:
+ mov eax, points
+ add pointsUser2, eax
+ mov eax, pointsUser2
+ call WriteInt
+
+Skip:
+mov edx, OFFSET points_message
+call WriteString
+call Crlf
+call Crlf
+call WaitMsg
+call Crlf
+mov eax, currentRound
+add eax, 1
+mov currentRound, eax
+cmp eax, numberOfRounds
+jbe Control 
+;call Crlf
+call ScoreScreen
 INVOKE ExitProcess,0       ; Once done, exit the program
 main ENDP
 
@@ -449,33 +523,161 @@ DisplayLoad PROC
 DisplayLoad ENDP
 
 ScoreScreen PROC
- call ClrScr
+ call ClrScr 
  mov edx, OFFSET winnerMsg
  call WriteString
- call Crlf
- call Crlf
- mov edx, OFFSET divider
- call WriteString
- call Crlf
- ; add titles for the names of the columns
- mov edx, OFFSET divider
- call WriteString
- call Crlf
- ; Output the names and the scores of each use in sorted order
+ mov eax, pointsUser1
+ cmp eax, pointsUser2
+ je Tie
+ jb TwoWon
+ ja OneWon
 
- mov eax, [user1Points]
- mov ebx, [user2Points]
- cmp eax, ebx
- ; Need to create a case for ties.
- ja PlayerOne
- jb PlayerTwo
+ Tie:
+  mov edx, OFFSET tieMsg
+  call WriteString
+  mov edx, OFFSET exclaim
+  call WriteString
+  call Crlf
+  call Crlf
+  mov edx, OFFSET divider
+  call WriteString
+  mov dl, 0
+  mov dh, 3
+  call Gotoxy
+  mov edx, OFFSET player
+  call WriteString
+  mov dl, 14
+  mov dh, 3
+  call Gotoxy
+  mov edx, OFFSET points_message
+  call WriteString
+  call Crlf
+  mov edx, OFFSET divider
+  call WriteString
+  call Crlf
+  mov dl, 0
+  mov dh, 5
+  call Gotoxy
+  mov edx, OFFSET user2
+  call WriteString
+  mov dl, 15
+  mov dh, 5
+  call Gotoxy
+  mov eax, pointsUser1
+  call WriteInt
+  call Crlf
+  mov dl, 0
+  mov dh, 6
+  call Gotoxy
+  mov edx, OFFSET user1
+  call WriteString
+  mov dl, 15
+  mov dh, 6
+  call Gotoxy
+  mov eax, pointsUser2
+  call WriteInt
+  call Crlf
+  jmp MoveOn
+  jmp MoveOn
 
- PlayerOne:
-  ; Write a MACRO for this
- PlayerTwo:
-
- call WriteString
- mov edx, 
+ OneWon:
+  mov edx, OFFSET user2
+  call WriteString
+  mov edx, OFFSET exclaim
+  call WriteString
+  call Crlf
+  call Crlf
+  mov edx, OFFSET divider
+  call WriteString
+  mov dl, 0
+  mov dh, 3
+  call Gotoxy
+  mov edx, OFFSET player
+  call WriteString
+  mov dl, 14
+  mov dh, 3
+  call Gotoxy
+  mov edx, OFFSET points_message
+  call WriteString
+  call Crlf
+  mov edx, OFFSET divider
+  call WriteString
+  call Crlf
+  mov dl, 0
+  mov dh, 5
+  call Gotoxy
+  mov edx, OFFSET user2
+  call WriteString
+  mov dl, 15
+  mov dh, 5
+  call Gotoxy
+  mov eax, pointsUser1
+  call WriteInt
+  call Crlf
+  mov dl, 0
+  mov dh, 6
+  call Gotoxy
+  mov edx, OFFSET user1
+  call WriteString
+  mov dl, 15
+  mov dh, 6
+  call Gotoxy
+  mov eax, pointsUser2
+  call WriteInt
+  call Crlf
+  jmp MoveOn
+ TwoWon:
+  mov edx, OFFSET user1
+  call WriteString
+  mov edx, OFFSET exclaim
+  call WriteString
+  call Crlf
+  call Crlf
+  mov edx, OFFSET divider
+  call WriteString
+  mov dl, 0
+  mov dh, 3
+  call Gotoxy
+  mov edx, OFFSET player
+  call WriteString
+  mov dl, 14
+  mov dh, 3
+  call Gotoxy
+  mov edx, OFFSET points_message
+  call WriteString
+  call Crlf
+  mov edx, OFFSET divider
+  call WriteString
+  call Crlf
+  mov dl, 0
+  mov dh, 5
+  call Gotoxy
+  mov edx, OFFSET user1
+  call WriteString
+  mov dl, 15
+  mov dh, 5
+  call Gotoxy
+  mov eax, pointsUser2
+  call WriteInt
+  call Crlf
+  mov dl, 0
+  mov dh, 6
+  call Gotoxy
+  mov edx, OFFSET user2
+  call WriteString
+  mov dl, 15
+  mov dh, 6
+  call Gotoxy
+  mov eax, pointsUser1
+  call WriteInt
+  call Crlf
+ 
+ MoveOn:
+  mov edx, OFFSET divider
+  call WriteString
+  call Crlf
+  call Crlf
+  ret
 ScoreScreen ENDP
 
 ;--------------------------------------------------------
@@ -678,7 +880,9 @@ ProcessInput PROC
    mov edx, OFFSET points_message
    call WriteString         ; Follow by the unit (Points)
    call Crlf
-   INVOKE ExitProcess,0     ; Terminate the program
+   mov foundWord, 1
+   ret
+   ; INVOKE ExitProcess,0     ; Terminate the program
 
 ;--------------------------------------------------------
 ; If the input did not match the correct string. Iterate 
