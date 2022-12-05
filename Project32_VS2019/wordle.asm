@@ -32,6 +32,76 @@ ToUpper MACRO char
  OutLoop:                  
   mov ecx, 0
 ENDM
+
+UserSetup MACRO char
+  mov eax, (black*16) + lightGreen ;turns text green
+  call SetTextColor
+  mov edx, OFFSET inform
+  call WriteString ;prints msg in inform
+  mov edx, OFFSET char
+  call WriteString ;prints msg in char
+  mov edx, OFFSET exclaim
+  call WriteString ;prints msg in exclaim
+  call Crlf
+ENDM
+
+ScoreBoard MACRO char1, char2, char3, char4, char5
+  mov edx, OFFSET char1
+  call WriteString ;prints char1
+  mov edx, OFFSET exclaim
+  call WriteString ;prints exclaim
+  call Crlf
+  call Crlf
+  mov edx, OFFSET divider
+  call WriteString ;prints divider
+  mov dl, 0
+  mov dh, 3
+  call Gotoxy
+  mov edx, OFFSET player
+  call WriteString ;prints player at gotoxy location
+  mov dl, 14
+  mov dh, 3
+  call Gotoxy
+  mov edx, OFFSET points_message
+  call WriteString ;prints points_message at gotoxy location
+  call Crlf
+  mov edx, OFFSET divider
+  call WriteString ;prints divider
+  call Crlf
+  mov dl, 0
+  mov dh, 5
+  call Gotoxy
+  mov edx, OFFSET char2
+  call WriteString ;prints char2 at gotoxy location
+  mov dl, 15
+  mov dh, 5
+  call Gotoxy
+  mov eax, char3
+  call WriteInt ;prints char3 at gotoxy location
+  call Crlf
+  mov dl, 0
+  mov dh, 6
+  call Gotoxy
+  mov edx, OFFSET char4
+  call WriteString ;prints char4 at gotoxy location
+  mov dl, 15
+  mov dh, 6
+  call Gotoxy
+  mov eax, char5
+  call WriteInt ;prints char5 at gotoxy location
+  call Crlf
+  jmp MoveOn
+  jmp MoveOn
+ENDM
+
+ColorMsg MACRO char1, char2
+  mov eax, (black*16) + char1
+ call SetTextColor
+ mov edx, OFFSET char2
+ call WriteString
+ call Crlf
+ call Crlf
+ENDM
  
 .data
 ;--------------------------------------------------------
@@ -186,7 +256,7 @@ main PROC
  ja Good
  jbe NotValid 
 
- NotValid:
+ NotValid: ;exits game if an invalid number of rounds is selected
   call Crlf
   mov eax, (black*16) + lightRed
   call SetTextColor
@@ -219,27 +289,11 @@ main PROC
  jne PlayerTwo
  push edx
  PlayerOne:
-  mov eax, (black*16) + lightGreen
-  call SetTextColor
-  mov edx, OFFSET inform
-  call WriteString
-  mov edx, OFFSET user2
-  call WriteString
-  mov edx, OFFSET exclaim
-  call WriteString
-  call Crlf
+  UserSetup user2
   jmp Cont
 
  PlayerTwo:
-  mov eax, (black*16) + lightGreen
-  call SetTextColor
-  mov edx, OFFSET inform
-  call WriteString
-  mov edx, OFFSET user1
-  call WriteString
-  mov edx, OFFSET exclaim
-  call WriteString
-  call Crlf
+  UserSetup user1
 
  Cont:
   mov eax, (black*16) + white
@@ -439,14 +493,14 @@ DisplayLoad PROC
  je Fourth
  jne Invalid
  
- First:
+ First: ;prints the rules of the game
   call ClrScr
   call DisplayRules
   call WaitMsg
   call ClrScr
   jmp Home
 
- Second:
+ Second: ;prints helpful hints for the game
   call ClrScr
   mov eax, (black*16) + lightGreen
   call SetTextColor
@@ -472,7 +526,7 @@ DisplayLoad PROC
   call ClrScr
   jmp Home
  
- Third:
+ Third: ;prints out information on scoring
   call ClrScr
   mov eax, (black*16) + lightGreen
   call SetTextColor
@@ -501,10 +555,10 @@ DisplayLoad PROC
   call ClrScr
   jmp Home
 
- Fourth:
+ Fourth: ;starts the game
   jmp Escape
 
- Invalid:
+ Invalid: ;invalid option was selected game closes
   mov eax, (black*16) + lightRed
   call SetTextColor
   call Crlf
@@ -527,150 +581,19 @@ ScoreScreen PROC
  mov edx, OFFSET winnerMsg
  call WriteString
  mov eax, pointsUser1
- cmp eax, pointsUser2
+ cmp eax, pointsUser2 ; decides who the winner was based on points accumulated
  je Tie
  jb TwoWon
  ja OneWon
 
  Tie:
-  mov edx, OFFSET tieMsg
-  call WriteString
-  mov edx, OFFSET exclaim
-  call WriteString
-  call Crlf
-  call Crlf
-  mov edx, OFFSET divider
-  call WriteString
-  mov dl, 0
-  mov dh, 3
-  call Gotoxy
-  mov edx, OFFSET player
-  call WriteString
-  mov dl, 14
-  mov dh, 3
-  call Gotoxy
-  mov edx, OFFSET points_message
-  call WriteString
-  call Crlf
-  mov edx, OFFSET divider
-  call WriteString
-  call Crlf
-  mov dl, 0
-  mov dh, 5
-  call Gotoxy
-  mov edx, OFFSET user2
-  call WriteString
-  mov dl, 15
-  mov dh, 5
-  call Gotoxy
-  mov eax, pointsUser1
-  call WriteInt
-  call Crlf
-  mov dl, 0
-  mov dh, 6
-  call Gotoxy
-  mov edx, OFFSET user1
-  call WriteString
-  mov dl, 15
-  mov dh, 6
-  call Gotoxy
-  mov eax, pointsUser2
-  call WriteInt
-  call Crlf
-  jmp MoveOn
-  jmp MoveOn
+  ScoreBoard tieMsg, user2, pointsUser1, user1, pointsUser2 ;print the scoreboard with a tie
 
  OneWon:
-  mov edx, OFFSET user2
-  call WriteString
-  mov edx, OFFSET exclaim
-  call WriteString
-  call Crlf
-  call Crlf
-  mov edx, OFFSET divider
-  call WriteString
-  mov dl, 0
-  mov dh, 3
-  call Gotoxy
-  mov edx, OFFSET player
-  call WriteString
-  mov dl, 14
-  mov dh, 3
-  call Gotoxy
-  mov edx, OFFSET points_message
-  call WriteString
-  call Crlf
-  mov edx, OFFSET divider
-  call WriteString
-  call Crlf
-  mov dl, 0
-  mov dh, 5
-  call Gotoxy
-  mov edx, OFFSET user2
-  call WriteString
-  mov dl, 15
-  mov dh, 5
-  call Gotoxy
-  mov eax, pointsUser1
-  call WriteInt
-  call Crlf
-  mov dl, 0
-  mov dh, 6
-  call Gotoxy
-  mov edx, OFFSET user1
-  call WriteString
-  mov dl, 15
-  mov dh, 6
-  call Gotoxy
-  mov eax, pointsUser2
-  call WriteInt
-  call Crlf
-  jmp MoveOn
+  ScoreBoard user2, user2, pointsUser1, user1, pointsUser2 ;print scoreboard with player 1 as champ
+
  TwoWon:
-  mov edx, OFFSET user1
-  call WriteString
-  mov edx, OFFSET exclaim
-  call WriteString
-  call Crlf
-  call Crlf
-  mov edx, OFFSET divider
-  call WriteString
-  mov dl, 0
-  mov dh, 3
-  call Gotoxy
-  mov edx, OFFSET player
-  call WriteString
-  mov dl, 14
-  mov dh, 3
-  call Gotoxy
-  mov edx, OFFSET points_message
-  call WriteString
-  call Crlf
-  mov edx, OFFSET divider
-  call WriteString
-  call Crlf
-  mov dl, 0
-  mov dh, 5
-  call Gotoxy
-  mov edx, OFFSET user1
-  call WriteString
-  mov dl, 15
-  mov dh, 5
-  call Gotoxy
-  mov eax, pointsUser2
-  call WriteInt
-  call Crlf
-  mov dl, 0
-  mov dh, 6
-  call Gotoxy
-  mov edx, OFFSET user2
-  call WriteString
-  mov dl, 15
-  mov dh, 6
-  call Gotoxy
-  mov eax, pointsUser1
-  call WriteInt
-  call Crlf
+  ScoreBoard user1, user1, pointsUser2, user2, pointsUser1 ;print scoreboard with player 2 as champ
  
  MoveOn:
   mov edx, OFFSET divider
@@ -686,24 +609,9 @@ ScoreScreen ENDP
 ; before it prompts the user for input.
 ;--------------------------------------------------------
 DisplayRules PROC
- mov eax, (black*16) + lightGreen
- call SetTextColor
- mov edx, OFFSET green_message
- call WriteString
- call Crlf
- call Crlf
- mov eax, (black*16) + yellow
- call SetTextColor
- mov edx, OFFSET yellow_message
- call WriteString
- call Crlf
- call Crlf
- mov eax, (black*16) + lightRed
- call SetTextColor
- mov edx, OFFSET red_message
- call WriteString
- call Crlf
- call Crlf
+ ColorMsg lightGreen, green_message
+ ColorMsg yellow, yellow_message
+ ColorMsg lightRed, red_message
  mov eax, (black*16) + cyan
  call SetTextColor
  mov edx, OFFSET rule1		
@@ -730,12 +638,7 @@ DisplayRules PROC
  mov dl,29
  mov dh,14
  call GoToXY                ; Change position
- mov eax, (black*16) + lightMagenta
- call SetTextColor
- mov edx, OFFSET luck		; Output final message
- call WriteString
- call Crlf
- call Crlf
+ ColorMsg lightMagenta, luck
  mov eax, (black*16) + white
  call SetTextColor          ; Revert color back
  ret
@@ -962,4 +865,3 @@ ProcessInput PROC
  ret                        ; Return to driver loop in main PROC
 ProcessInput ENDP
 END main
-
